@@ -535,6 +535,19 @@ def set_format(df, formats):
                         else:
                             new_col.append(val)
                 df[col] = pd.Series(new_col, index=df.index)
+            elif formats[i] == "percentage":
+                new_col = []
+                for val in df[col]:
+                    try:
+                        num = float(val)
+                        if not pd.isna(num):
+                            num = min(num, 1.0)
+                            new_col.append(f"{num * 100:.2f}%")
+                        else:
+                            new_col.append(val)
+                    except (ValueError, TypeError):
+                        new_col.append(val)
+                df[col] = pd.Series(new_col, index=df.index)
             else:
                 df[col] = df[col].astype(str)
                 tqdm.write(f"Unknown format '{formats[i]}'. Column '{col}' will be formatted as text.")
@@ -658,6 +671,7 @@ def save_as_xlsx(df_list, config_list, output_dir, output_filename):
     try:
         with pd.ExcelWriter(output_file, engine='openpyxl') as writer:
             for (name, df), sections, headings, comments in zip(df_list.items(), sections_list, headings_list, comments_list):
+                # Reformat booleans
                 for col in df.select_dtypes(include="bool"):
                     df[col] = df[col].astype(bool)
 
@@ -665,8 +679,19 @@ def save_as_xlsx(df_list, config_list, output_dir, output_filename):
                 df.to_excel(writer, sheet_name=name, index=False, startrow=2, header=False)
                 worksheet = writer.sheets[name]
 
+                # If values end with '%', format as percentage
+                percentage_pattern = re.compile(r'^\d+\.?\d*$')
+                for row in worksheet.iter_rows(min_row=3, max_row=worksheet.max_row, max_col=worksheet.max_column):
+                    for cell in row:
+                        if isinstance(cell.value, str) and percentage_pattern.match(cell.value):
+                            try:
+                                cell.value = float(cell.value.rstrip('%')) / 100
+                                cell.number_format = '0.00%'
+                            except ValueError:
+                                pass
+
                 # Define styling
-                fill = PatternFill("solid", fgColor="4F81BD")
+                fill = PatternFill("solid", fgColor="082144")
                 bold_white_font = Font(bold=True, color="FFFFFF")
                 center_align = Alignment(horizontal="center", vertical="center")
                 thin_side = Side(style="thin")
