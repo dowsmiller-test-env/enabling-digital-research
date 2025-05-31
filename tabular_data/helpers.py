@@ -680,7 +680,7 @@ def save_as_xlsx(df_list, config_list, output_dir, output_filename):
                 worksheet = writer.sheets[name]
 
                 # If values end with '%', format as percentage
-                percentage_pattern = re.compile(r'^\d+\.?\d*$')
+                percentage_pattern = re.compile(r'^\d+\.?\d*%$')
                 for row in worksheet.iter_rows(min_row=3, max_row=worksheet.max_row, max_col=worksheet.max_column):
                     for cell in row:
                         if isinstance(cell.value, str) and percentage_pattern.match(cell.value):
