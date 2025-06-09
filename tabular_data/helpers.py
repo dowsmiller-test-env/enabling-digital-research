@@ -1,9 +1,10 @@
 import os
 import re
 import math
-import elementpath
 import pandas as pd
 import xml.etree.ElementTree as ET
+import elementpath
+from elementpath.xpath3 import XPath31Parser
 from collections import defaultdict
 from itertools import chain
 from pathlib import Path
@@ -396,7 +397,8 @@ def extract_with_xpath(xml_element, xpath_expr):
         result = elementpath.select(
             xml_element, 
             xpath_expr, 
-            namespaces={'tei': 'http://www.tei-c.org/ns/1.0'}
+            namespaces={'tei': 'http://www.tei-c.org/ns/1.0'},
+            parser=XPath31Parser
         )
         # Convert non-list results (including booleans) to a list.
         if not isinstance(result, list):
