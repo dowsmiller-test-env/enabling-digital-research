@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Merged Data</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <div class="back-link">
+            <a href="/">← Back to Upload</a>
+        </div>
+        <h1>Merged Data Preview</h1>
+    </header>
+    <div class="results-container">
+        <form action="/download" method="get">
+            <button type="submit">Download CSV</button>
+        </form>
+
+        <div class="table-wrapper">
+            {{ table | safe }}
+        </div>
+    </div>
+</body>
+</html>

@@ -22,6 +22,9 @@ env/
 # Ignore Excel working files
 **/~$*.xlsx
 
+# Ignore web app upload files
+/tabular_data/app/uploads
+
 # Ignore WIP files
 /tabular_data/work_in_progress
 

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Select CSV Files to Merge</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <header>
+    <h1>Upload CSV Files</h1>
+  </header>
+  <div class="container">
+    <form method="post" enctype="multipart/form-data">
+      <label for="files" class="custom-file-label">Choose CSV files to upload:</label><br/>
+      <input type="file" name="files" id="files" multiple style="display:none;" />
+      <button type="button" id="customFileButton">Select files</button>
+      <span id="fileNames" style="margin-left:1rem; font-style: italic;"></span><br/>
+      <button type="submit" id="submitButton" style="display:none;">Upload and Select Columns</button>
+    </form>
+  </div>
+  <script>
+    const fileInput = document.getElementById('files');
+    const customButton = document.getElementById('customFileButton');
+    const fileNamesSpan = document.getElementById('fileNames');
+    const submitButton = document.getElementById('submitButton');
+
+    function formatFileSize(bytes) {
+      if (bytes < 1024) return bytes + ' B';
+      else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+      else return (bytes / 1048576).toFixed(2) + ' MB';
+    }
+
+    customButton.addEventListener('click', () => {
+      fileInput.click();
+    });
+
+    fileInput.addEventListener('change', () => {
+      const files = fileInput.files;
+      if (files.length === 0) {
+        fileNamesSpan.textContent = '';
+        submitButton.style.display = 'none';
+      } else {
+        // Create detailed list of files with names and sizes
+        let details = '';
+        for (let i = 0; i < files.length; i++) {
+          details += `${files[i].name} (${formatFileSize(files[i].size)})`;
+          if (i < files.length - 1) details += ', ';
+        }
+        fileNamesSpan.textContent = details;
+        submitButton.style.display = 'inline-block';
+      }
+    });
+  </script>
+</body>
+</html>
