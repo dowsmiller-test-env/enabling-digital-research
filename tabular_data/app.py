@@ -52,8 +52,6 @@ def merge():
     html_table = merged_df.fillna('').to_html(classes='data-table', index=False)
     return render_template('result.html', table=html_table)
 
-
-
 @app.route("/download")
 def download():
     global merged_df
