@@ -117,6 +117,15 @@ button:hover,
   background-color: #003f80;
 }
 
+/* Button Group */
+.button-group form {
+  display: inline;
+}
+
+.button-group button {
+  margin-right: 10px;
+}
+
 /* Forms & Fields */
 form {
   margin-top: 1.5rem;
@@ -198,8 +207,27 @@ footer .back-link a {
   background-color: #003f80;
 }
 
+#files {
+  display: none;
+}
+
 #fileNames {
+  margin-left: 1rem;
+  font-style: italic;
   font-family: "Merriweather", Georgia, serif;
   font-size: 1rem;
   vertical-align: middle;
+}
+
+#submitButton {
+  display: none;
+}
+
+#progress-container {
+  display: none;
+}
+
+#error-container {
+  display: none;
+  color: red;
 }

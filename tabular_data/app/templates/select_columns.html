@@ -14,7 +14,7 @@
         <h1>Select Columns to Merge</h1>
     </header>
     <div class="container">
-        <form method="post" action="/merge">
+        <form method="post" action="/require_values">
         <div class="columns-wrapper">
           {% for file, columns in files.items() %}
             <div class="column-group">
@@ -39,11 +39,7 @@
             </div>
           {% endfor %}
         </div>
-        <label>
-          <input type="checkbox" name="exclude_empty_rows" value="true">
-          Exclude empty rows
-        </label><br>
-        <input type="submit" class="btn" value="Merge Files">
+        <input type="submit" class="btn" value="Continue">
       </form> 
     </div>
 </body>

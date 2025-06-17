@@ -13,7 +13,7 @@ def load_and_merge(files_with_columns):
     dfs = []
 
     for file, columns in files_with_columns.items():
-        df = pd.read_csv(file)
+        df = pd.read_csv(file, low_memory=False)
 
         # Auto-detect the partID column
         partid_col = detect_partid_column(df.columns)
