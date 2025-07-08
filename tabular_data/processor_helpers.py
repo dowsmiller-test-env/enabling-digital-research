@@ -52,7 +52,7 @@ def import_files(xml_path, config_path, xml_recursive=False, config_recursive=Fa
         seen = defaultdict(int)
         
         for col in zip(config['section'], config['heading']):
-            base_name = f"{col[0]}: {col[1]}"
+            base_name = col[0] + ": " + col[1] if col[0] is not None else col[1]
             if seen[base_name] > 0:
                 new_name = f"{base_name}_{seen[base_name]}"
                 tqdm.write(f"Warning: Duplicate column name '{base_name}' detected. Renaming to '{new_name}'.")
@@ -357,9 +357,10 @@ def process_column(
             # Set the separator
             s = get_separator(separator, separator_map)
             # Set the column name, handling None values
-            section_str = auth_section if auth_section is not None else ""
-            col_str = auth_col if auth_col is not None else ""
-            col_name = section_str + ": " + col_str
+            auth_section_str = auth_section + ": " if auth_section is not None else ""
+            auth_col_str = auth_col if auth_col is not None else ""
+            auth_col_name = auth_section_str + auth_col_str
+
             # Lookup the value in the authority file
             for filename, xml in xml_data.items():
                 # Extract data items using XPath
@@ -368,7 +369,7 @@ def process_column(
                 # Process each data item using the lookup function
                 lookup_data = []
                 for data_item in extracted_data:
-                    processed_item = process_lookup_item(data_item, auth_df, col_name, s)
+                    processed_item = process_lookup_item(data_item, auth_df, auth_col_name, s)
                     # Flatten and validate processed_item before appending
                     if isinstance(processed_item, list):
                         lookup_data.extend(processed_item)
@@ -424,13 +425,13 @@ def get_separator(separator, separator_map):
     return s
 
 # Helper function to process data found through the authority lookup
-def process_lookup_item(data_item, auth_df, col_name, separator):
+def process_lookup_item(data_item, auth_df, auth_col_name, separator):
     """
     Processes a single data item by looking it up in the authority DataFrame and returning the corresponding value.
     Args:
         data_item (str): The data item to process.
         auth_df (DataFrame): The authority DataFrame.
-        col_name (str): The column name in the authority DataFrame.
+        auth_col_name (str): The column name in the authority DataFrame.
         separator (str): The separator for joining values.
     Returns:
         str: The processed value, joined by the separator.
@@ -443,7 +444,7 @@ def process_lookup_item(data_item, auth_df, col_name, separator):
             filtered = auth_df[auth_df.iloc[:, 0] == identifier]
             if not filtered.empty:
                 # Get the value from the specified column
-                value = filtered[col_name].iloc[0]
+                value = filtered[auth_col_name].iloc[0]
                 # If the value is a boolean, convert its string form to lowercase
                 piece = str(value).lower() if isinstance(value, bool) else str(value)
             else:
@@ -515,7 +516,7 @@ def set_format(df, formats):
                             new_col.append(int(val_str))
                         else:
                             try:
-                                dt = pd.to_datetime(val, errors='raise')
+                                dt = pd.to_datetime(val, errors='raise', yearfirst=True)
                                 if dt.year < 1900:
                                     new_col.append(val)
                                 else:
