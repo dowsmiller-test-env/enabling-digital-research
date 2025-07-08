@@ -4,7 +4,7 @@ Below is an explanation of the information contained within each of the default
 	configuration files, as well as details of how to customise the files
 	for your own purposes.
 
-1. General Principles
+1. Notes and General Principles
 
 	1.1. Data Quality
 
@@ -33,8 +33,8 @@ Below is an explanation of the information contained within each of the default
 
 	All authority files will be processed in alphabetical order by filename,
 		and this is also the order in which the output tabs will appear
-		in the output .xlsx files. If you wish to modify this order, try
-		putting numbers at the beginning of your config filenames.
+		in the output .xlsx files. If you wish to modify this order,
+		include numbers at the beginning of your config filenames.
 
 	Authority files will be processed before collection files, to ensure
 		that the data required for any authority lookups have already
@@ -91,10 +91,11 @@ Below is an explanation of the information contained within each of the default
 		data extraction to be successful, each .csv configuration
 		file must have the following columns:
 
-		section		a macro-level heading grouping different output
+		section		a top-level heading to group different output
 				columns together. Consecutive output columns
 				with the same section heading will be grouped
 				into a single section within the .xlsx output.
+				This field is optional, but advised.
 
 		heading		a heading for the output column, within the
 				previously designated section.	
@@ -161,14 +162,22 @@ Below is an explanation of the information contained within each of the default
 	3.1. Source Files
 
 	Any .xml file found in the root directory of the repository will be
-		treated as a file containing data about an individual
-		manuscript unit.
+		treated as a file containing data about an individual manuscript
+		unit.
 
 	3.2. Default Configuration Files
 
 	Any .csv file found in the tabular_data/config/collection directory will
 		be treated as configuration files for collection output files.
-		By default, these are:
+		These will result in output files in .csv and .json format of the
+		same name, as well as a combined .xslx file with tabs corresponding
+		to each configuration file.
+
+	By default, all output files are configured to begin with columns containing
+		comparable metadata such as shelfmark and the name of the collection
+		file, to allow cross-comparison.
+
+	The default configuration files are as follows:
 
 		00_overview.csv				Each row of the output file corresponds to
 							a manuscript unit, be that a part (`msPart`)
@@ -287,10 +296,11 @@ Below is an explanation of the information contained within each of the default
 		data extraction to be successful, each .csv configuration
 		file must have the following columns:
 
-		section		a macro-level heading grouping different output
+		section		a top-level heading to group different output
 				columns together. Consecutive output columns
 				with the same section heading will be grouped
 				into a single section within the .xlsx output.
+				This field is optional, but advised.
 
 		heading		a heading for the output column, within the
 				previously designated section.	
@@ -317,11 +327,17 @@ Below is an explanation of the information contained within each of the default
 				performing an authority lookup. Else this can
 				be left blank.
 
-		auth_section	the macro-level heading in the authority
+		auth_section	the top-level heading in the authority
 				output file within which the desired lookup
 				column can be found, if you are performing
-				an authority lookup. Else this can be left
-				blank.
+				an authority lookup. This can be left blank
+				if no authority lookup is being performed, or
+				if the authority file has no section headings.
+
+		auth_heading	the heading in the authority output file of
+				the desired lookup column. This can be left
+				blank if no authority lookup is being
+				performed.
 
 		separator	the string separator that should be used when
 				an authority-lookup returns multiple values.
@@ -349,7 +365,8 @@ Below is an explanation of the information contained within each of the default
 					"text"		(formats as string)
 					"number"	(formats as double)
 					"date"		(formats as date if before 1950,
-							else date-like string)
+							else date-like string, to avoid
+							date-handling errors in Excel)
 					"boolean"	(true/false)
 					"percentage"	(formats decimal as percentage,
 							rounded to two decimal places)
@@ -358,10 +375,4 @@ Below is an explanation of the information contained within each of the default
 				the XPath query, which (if present) will be
 				included as a note attached to the relevant
 				column heading in the .xlsx output file.
-
-	The default configuration files result in output files in .csv and .json
-		format of the same name, as well as a combined .xlsx file with
-		tabs corresponding to each configuration file. These all begin
-		with columns containing comparable metadata such as shelfmark
-		and the name of the collection file, to allow cross-comparison.
 
