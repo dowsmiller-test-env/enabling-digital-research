@@ -135,101 +135,106 @@ def process_file(
     Returns:
         tuple: (config_name, processed DataFrame)
     """
-    # Load the DataFrame
-    df = df_list[config_name]
+    try:
+        # Load the DataFrame
+        df = df_list[config_name]
 
-    if file_type == "authority":
-        # Extract columns for authority processing
-        try:
-            auth_files, xpaths, formats = (
-                config[col].tolist() for col in ["auth_file", "xpath", "format"]
-            )
-        except Exception as e:
-            tqdm.write(f"Failed to extract configuration columns for '{config_name}'. Error: {e}")
-            return config_name, df
+        if file_type == "authority":
+            # Extract columns for authority processing
+            try:
+                auth_files, xpaths, formats = (
+                    config[col].tolist() for col in ["auth_file", "xpath", "format"]
+                )
+            except Exception as e:
+                tqdm.write(f"Failed to extract configuration columns for '{config_name}'. Error: {e}")
+                return config_name, df
 
-        # Count cores
-        num_workers = (os.cpu_count() or 1) - cores_spare
-        num_workers = max(num_workers, 1)
+            # Count cores
+            num_workers = (os.cpu_count() or 1) - cores_spare
+            num_workers = max(num_workers, 1)
 
-        # Prepare arguments
-        all_args = [
-            (i, xpath, auth_file)
-            for i, (xpath, auth_file)
-            in enumerate(zip(xpaths, auth_files))
-        ]
-
-        max_batches = min(len(all_args), num_workers)
-        max_batches = num_workers + 1
-        batch_size = max(1, math.ceil(len(all_args) / max_batches))
-
-        batches = [
-            all_args[i : i + batch_size]
-            for i in range(0, len(all_args), batch_size)
-        ]
-
-        # Dispatch batches in parallel
-        with ProcessPoolExecutor(max_workers=num_workers) as executor:
-            futures = [
-                executor.submit(process_batch, batch=batch, file_type=file_type, xml_data=xml_data)
-                for batch in batches
+            # Prepare arguments
+            all_args = [
+                (i, xpath, auth_file)
+                for i, (xpath, auth_file)
+                in enumerate(zip(xpaths, auth_files))
             ]
-            for future in tqdm(
-                as_completed(futures),
-                total=len(futures),
-                desc=f"File '{config_name}'",
-                position=bar_pos
-            ):
-                try:
+
+            max_batches = min(len(all_args), num_workers)
+            max_batches = num_workers + 1
+            batch_size = max(1, math.ceil(len(all_args) / max_batches))
+
+            batches = [
+                all_args[i : i + batch_size]
+                for i in range(0, len(all_args), batch_size)
+            ]
+
+            # Dispatch batches in parallel
+            with ProcessPoolExecutor(max_workers=num_workers) as executor:
+                futures = [
+                    executor.submit(process_batch, batch=batch, file_type=file_type, xml_data=xml_data)
+                    for batch in batches
+                ]
+                for future in tqdm(
+                    as_completed(futures),
+                    total=len(futures),
+                    desc=f"File '{config_name}'",
+                    position=bar_pos
+                ):
+                    try:
+                        batch_result = future.result()
+                        for i, col_data in batch_result.items():
+                            df.iloc[:, i] = col_data
+                    except Exception as e:
+                        tqdm.write(f"Error processing batch for '{config_name}'. Error: {e}")
+
+        elif file_type == "collection":
+            # Extract columns for collection processing
+            try:
+                xpaths, auth_files, auth_sections, auth_cols, separators, formats = (
+                    config[col].tolist() for col in ["xpath", "auth_file", "auth_section", "auth_col", "separator", "format"]
+                )
+            except Exception as e:
+                tqdm.write(f"Failed to extract configuration columns for '{config_name}'. Error: {e}")
+                return config_name, df
+
+            # Count cores
+            num_workers = max(1, (os.cpu_count() or 1) - cores_spare)
+
+            # Prepare arguments
+            all_args = [
+                (i, xpath, auth_file, auth_section, auth_col, separator)
+                for i, (xpath, auth_file, auth_section, auth_col, separator)
+                in enumerate(zip(xpaths, auth_files, auth_sections, auth_cols, separators))
+            ]
+
+            # Split into batches
+            max_batches = num_workers + 1
+            batch_size = max(1, math.ceil(len(all_args) / max_batches))
+
+            batches = [
+                all_args[i : i + batch_size]
+                for i in range(0, len(all_args), batch_size)
+            ]
+
+            # Dispatch batches in parallel
+            with ProcessPoolExecutor(max_workers=num_workers) as executor:
+                futures = [
+                    executor.submit(process_batch, batch=batch, file_type=file_type, xml_data=xml_data, lookup_df_list=lookup_df_list, separator_map=separator_map)
+                    for batch in batches
+                ]
+                for future in tqdm(as_completed(futures), total=len(futures),
+                                desc=f"File '{config_name}'", position=bar_pos):
                     batch_result = future.result()
                     for i, col_data in batch_result.items():
                         df.iloc[:, i] = col_data
-                except Exception as e:
-                    tqdm.write(f"Error processing batch for '{config_name}'. Error: {e}")
 
-    elif file_type == "collection":
-        # Extract columns for collection processing
-        try:
-            xpaths, auth_files, auth_sections, auth_cols, separators, formats = (
-                config[col].tolist() for col in ["xpath", "auth_file", "auth_section", "auth_col", "separator", "format"]
-            )
-        except Exception as e:
-            tqdm.write(f"Failed to extract configuration columns for '{config_name}'. Error: {e}")
-            return config_name, df
-
-        # Count cores
-        num_workers = max(1, (os.cpu_count() or 1) - cores_spare)
-
-        # Prepare arguments
-        all_args = [
-            (i, xpath, auth_file, auth_section, auth_col, separator)
-            for i, (xpath, auth_file, auth_section, auth_col, separator)
-            in enumerate(zip(xpaths, auth_files, auth_sections, auth_cols, separators))
-        ]
-
-        # Split into batches
-        max_batches = num_workers + 1
-        batch_size = max(1, math.ceil(len(all_args) / max_batches))
-
-        batches = [
-            all_args[i : i + batch_size]
-            for i in range(0, len(all_args), batch_size)
-        ]
-
-        # Dispatch batches in parallel
-        with ProcessPoolExecutor(max_workers=num_workers) as executor:
-            futures = [
-                executor.submit(process_batch, batch=batch, file_type=file_type, xml_data=xml_data, lookup_df_list=lookup_df_list, separator_map=separator_map)
-                for batch in batches
-            ]
-            for future in tqdm(as_completed(futures), total=len(futures),
-                            desc=f"File '{config_name}'", position=bar_pos):
-                batch_result = future.result()
-                for i, col_data in batch_result.items():
-                    df.iloc[:, i] = col_data
-
-    else:
-        raise ValueError(f"Unsupported file_type: '{file_type}'. Valid options are 'authority' or 'collection'.")
+        else:
+            raise ValueError(f"Unsupported file_type: '{file_type}'. Valid options are 'authority' or 'collection'.")
+        
+    except Exception as e:
+        tqdm.write(f"Failed to fully process '{config_name}'. Returning an empty DataFrame. Error: {e}")
+        return config_name, pd.DataFrame()
     
     # Defragment the DataFrame
     df = defrag(df)
@@ -271,35 +276,43 @@ def process_batch(
     """
     out = {}
     for args in batch:
-        # Unpack args according to file_type
-        if file_type == "authority":
-            i, xpath, auth_file = args
-            i, col_data = process_column(
-                i,
-                xpath,
-                auth_file,
-                xml_data,
-                file_type=file_type,
-                lookup_df_list=lookup_df_list,
-                separator_map=separator_map
-            )
-        elif file_type == "collection":
-            i, xpath, auth_file, auth_section, auth_col, separator = args
-            i, col_data = process_column(
-                i,
-                xpath,
-                auth_file,
-                xml_data,
-                lookup_df_list=lookup_df_list,
-                auth_section=auth_section,
-                auth_col=auth_col,
-                separator=separator,
-                separator_map=separator_map,
-                file_type=file_type
-            )
-        else:
-            raise ValueError(f"Unsupported file_type: {file_type}. Valid options are 'authority' or 'collection'.")
-        out[i] = col_data
+        try:
+            # Unpack args according to file_type
+            if file_type == "authority":
+                i, xpath, auth_file = args
+                result = process_column(
+                    i,
+                    xpath,
+                    auth_file,
+                    xml_data,
+                    file_type=file_type,
+                    lookup_df_list=lookup_df_list,
+                    separator_map=separator_map
+                )
+            elif file_type == "collection":
+                i, xpath, auth_file, auth_section, auth_col, separator = args
+                result = process_column(
+                    i,
+                    xpath,
+                    auth_file,
+                    xml_data,
+                    lookup_df_list=lookup_df_list,
+                    auth_section=auth_section,
+                    auth_col=auth_col,
+                    separator=separator,
+                    separator_map=separator_map,
+                    file_type=file_type
+                )
+            else:
+                raise ValueError(f"Unsupported file_type: '{file_type}'. Valid options are 'authority' or 'collection'.")
+
+            if result is not None:
+                i, col_data = result
+                out[i] = col_data
+        except Exception as e:
+            tqdm.write(f"Failed to process column batch. Error: {e}")
+            continue
+
     return out
 
 # Helper function to process a single column
@@ -334,12 +347,14 @@ def process_column(
     if file_type == "authority":
         auth_xml = xml_data.get(auth_file)
         results = extract_with_xpath(auth_xml, xpath)
-        # Flatten the results and ensure no nested lists remain
-        results = list(chain.from_iterable(sublist if isinstance(sublist, list) else [sublist] for sublist in results))
 
-        if not auth_file or (lookup_df_list is not None and auth_file.lower().strip() not in lookup_df_list):
-            results = [item for item in results if not isinstance(item, list)]
-        return i, results
+        # Flatten the results and ensure no nested lists remain
+        if results is not None:
+            results = list(chain.from_iterable(sublist if isinstance(sublist, list) else [sublist] for sublist in results))
+
+            if not auth_file or (lookup_df_list is not None and auth_file.lower().strip() not in lookup_df_list):
+                results = [item for item in results if not isinstance(item, list)]
+            return i, results
 
     elif file_type == "collection":
         results = []
@@ -368,14 +383,15 @@ def process_column(
                 
                 # Process each data item using the lookup function
                 lookup_data = []
-                for data_item in extracted_data:
-                    processed_item = process_lookup_item(data_item, auth_df, auth_col_name, s)
-                    # Flatten and validate processed_item before appending
-                    if isinstance(processed_item, list):
-                        lookup_data.extend(processed_item)
-                    else:
-                        lookup_data.append(processed_item)
-                results.append(lookup_data)
+                if extracted_data is not None:
+                    for data_item in extracted_data:
+                        processed_item = process_lookup_item(data_item, auth_df, auth_col_name, s)
+                        # Flatten and validate processed_item before appending
+                        if isinstance(processed_item, list):
+                            lookup_data.extend(processed_item)
+                        else:
+                            lookup_data.append(processed_item)
+                    results.append(lookup_data)
 
         # Flatten the results and ensure no nested lists remain
         results = [item for sublist in results for item in (sublist if isinstance(sublist, list) else [sublist])]
@@ -394,6 +410,10 @@ def extract_with_xpath(xml_element, xpath_expr):
     Returns:
         list: The extracted data.
     """
+    if xml_element is None:
+        tqdm.write("XPath extraction failed. XML file not found.")
+        return
+
     try:
         result = elementpath.select(
             xml_element, 
@@ -674,6 +694,10 @@ def save_as_xlsx(df_list, config_list, output_dir, output_filename):
     try:
         with pd.ExcelWriter(output_file, engine='openpyxl') as writer:
             for (name, df), sections, headings, comments in zip(df_list.items(), sections_list, headings_list, comments_list):
+                if df.empty:
+                    tqdm.write(f"Skipping saving '{name}' as the DataFrame is empty.")
+                    return
+                
                 # Reformat booleans
                 for col in df.select_dtypes(include="bool"):
                     df[col] = df[col].astype(bool)
