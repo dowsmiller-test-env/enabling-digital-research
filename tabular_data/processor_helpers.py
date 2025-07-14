@@ -711,7 +711,7 @@ def save_as_xlsx(df_list, config_list, output_dir, output_filename):
         with pd.ExcelWriter(output_file, engine='openpyxl') as writer:
             for (name, df), sections, headings, comments in zip(df_list.items(), sections_list, headings_list, comments_list):
                 if df.empty:
-                    tqdm.write(f"Skipping saving '{name}.xlsx' as the DataFrame is empty.")
+                    tqdm.write(f"Skipping saving '{name}' as the DataFrame is empty.")
                     return
                 
                 # Reformat booleans
