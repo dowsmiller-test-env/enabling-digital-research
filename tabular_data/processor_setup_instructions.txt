@@ -14,14 +14,14 @@ Follow the steps below to set up and run the data processor script on Mac,
 	See the read_me file in the `config` directory for further details.
 
 
-2. Open a Terminal or Command Prompt
+3. Open a Terminal or Command Prompt
 
 	Navigate to the `tabular_data` directory in your terminal (Mac/Linux) or
 	Command Prompt/PowerShell (Windows), or open a new Terminal/Command Prompt
 	window at that directory.
 
 
-3. Check Python and pip Installation
+4. Check Python and pip Installation
 
 	Make sure Python 3 and pip are installed:
 
@@ -38,7 +38,7 @@ Follow the steps below to set up and run the data processor script on Mac,
 	If not installed, download Python from https://www.python.org/downloads/
 
 
-4. Create a Virtual Environment
+5. Create a Virtual Environment
 
 	Mac/Linux:
 
@@ -49,7 +49,7 @@ Follow the steps below to set up and run the data processor script on Mac,
 		python -m venv .venv
 
 
-5. Activate the Virtual Environment
+6. Activate the Virtual Environment
 
 	Mac/Linux:
 
@@ -64,7 +64,7 @@ Follow the steps below to set up and run the data processor script on Mac,
 		.venv\Scripts\Activate.ps1
 
 
-6. Install Dependencies
+7. Install Dependencies
 
 	Once the virtual environment is active, install the required
 	Python packages:
@@ -72,14 +72,14 @@ Follow the steps below to set up and run the data processor script on Mac,
 		pip install -r requirements.txt
 
 
-7. Run the Processor Script
+8. Run the Processor Script
 
 	Run the main script to process the data:
 
 		python processor.py
 
 
-8. Output
+9. Output
 
 	After processing is complete, the results will be saved in the
 	`output` folder.
