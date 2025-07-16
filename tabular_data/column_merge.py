@@ -1,31 +1,38 @@
-from flask import Flask, jsonify, render_template, request, redirect, make_response
-import pandas as pd
-from pandas.errors import MergeError
 import os
+import argparse
+import json
+import traceback
+from io import StringIO
+import pandas as pd
+from flask import Flask, render_template, request, redirect, make_response
 from waitress import serve
 from werkzeug.utils import secure_filename
 from column_merge_helpers import load_and_merge
-import json
-import traceback
 
 template_dir = os.path.join(os.path.dirname(__file__), 'column_merge', 'templates')
-upload_folder = os.path.join(os.path.dirname(__file__), 'column_merge', 'uploads')
 static_folder = os.path.join(os.path.dirname(__file__), 'column_merge', 'static')
 
 app = Flask(__name__, template_folder=template_dir, static_folder=static_folder)
-app.config['UPLOAD_FOLDER'] = upload_folder
+
+uploaded_files_data = {}
+
+merged_df_cache = {}
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
         files = request.files.getlist('files')
-        file_paths = []
         for file in files:
-            filename = secure_filename(file.filename) if file.filename is not None else ""
-            path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            file.save(path)
-            file_paths.append(path)
-        return redirect('/select?files=' + ','.join(file_paths))
+            filename = secure_filename(file.filename) if file.filename else ""
+            content = file.read()  # bytes
+
+            content_str = content.decode('utf-8-sig').lstrip('\r\n')
+
+            uploaded_files_data[filename] = content_str
+
+        # Redirect with filenames as params
+        return redirect('/select?files=' + ','.join(uploaded_files_data.keys()))
+
     instructions = (
         "Step 1: Upload one or more CSV files. "
         "Click 'Select files' to choose files, then 'Continue' to proceed."
@@ -34,16 +41,18 @@ def index():
 
 @app.route('/select')
 def select():
-    file_paths_param = request.args.get('files')
-    if not file_paths_param:
+    file_names_param = request.args.get('files')
+    if not file_names_param:
         return redirect('/')
 
-    file_paths = file_paths_param.split(',')
+    file_names = file_names_param.split(',')
     all_columns = {}
-    for fp in file_paths:
-        df = pd.read_csv(fp, nrows=5)
+    for filename in file_names:
+        content_str = uploaded_files_data.get(filename)
+        if not content_str:
+            continue
+        df = pd.read_csv(StringIO(content_str), nrows=5, encoding='utf-8-sig')
         df.columns = df.columns.str.strip()
-        filename = os.path.basename(fp)
         all_columns[filename] = df.columns.tolist()
 
     safe_keys = {
@@ -106,34 +115,38 @@ def merge():
 
     merge_keys = {key.rsplit('_merge_key', 1)[0]: val[0] for key, val in form.items() if key.endswith('_merge_key')}
 
-    try:
-        merged_df = load_and_merge(files_with_columns, merge_keys, upload_dir=app.config['UPLOAD_FOLDER'])
+    csv_contents = {filename: uploaded_files_data[filename] for filename in files_with_columns.keys()}
 
-        if exclude_empty or required_columns:
-            cols_to_check = required_columns if required_columns else [col for col in merged_df.columns if col != 'metadata: part ID']
-            merged_df = merged_df.dropna(subset=cols_to_check, how='any')
+    merged_df = load_and_merge(files_with_columns, merge_keys, csv_contents)
 
-        merged_csv_path = os.path.join(app.config['UPLOAD_FOLDER'], 'merged.csv')
-        merged_df.to_csv(merged_csv_path, index=False, encoding='utf-8-sig')
-        html_table = merged_df.fillna('').to_html(classes='data-table', index=False)
-        return render_template('result.html', table=html_table)
+    if exclude_empty or required_columns:
+        if required_columns:
+            prefixed_required_cols = []
+            for col in required_columns:
+                for filename, cols in files_with_columns.items():
+                    prefix = os.path.splitext(filename)[0]
+                    if col in cols:
+                        prefixed_required_cols.append(f"{prefix}: {col}")
+            cols_to_check = prefixed_required_cols
+        else:
+            cols_to_check = [col for col in merged_df.columns if col != 'metadata: part ID']
 
-    except (KeyError, MergeError) as e:
-        error_msg = (
-            "Merge failed: The selected merge keys have no matching values or columns are missing.<br>"
-            "Please check your selections and try again."
-        )
-        return render_template('error.html', error_message=error_msg), 400
+        merged_df = merged_df.dropna(subset=cols_to_check, how='any')
+
+    merged_df_cache['data'] = merged_df
+
+    html_table = merged_df.fillna('').to_html(classes='data-table', index=False)
+
+    return render_template('result.html', table=html_table)
 
 @app.route("/download_csv")
 def download_csv():
-    merged_csv_path = os.path.join(app.config['UPLOAD_FOLDER'], 'merged.csv')
+    if 'data' not in merged_df_cache:
+        return render_template('error.html', error_message="No merged data available to download."), 404
 
-    if not os.path.exists(merged_csv_path):
-        return render_template('error.html', error_message="No merged file found to download."), 404
-
-    with open(merged_csv_path, 'r', encoding='utf-8-sig') as f:
-        csv_data = f.read()
+    output = StringIO()
+    merged_df_cache['data'].to_csv(output, index=False, encoding='utf-8-sig')
+    csv_data = output.getvalue()
 
     response = make_response(csv_data)
     response.headers["Content-Disposition"] = "attachment; filename=merged.csv"
@@ -142,14 +155,12 @@ def download_csv():
 
 @app.route("/download_json")
 def download_json():
-    merged_csv_path = os.path.join(app.config['UPLOAD_FOLDER'], 'merged.csv')
+    if 'data' not in merged_df_cache:
+        return render_template('error.html', error_message="No merged data available to download."), 404
 
-    if not os.path.exists(merged_csv_path):
-        return render_template('error.html', error_message="No merged file found to download."), 404
+    json_data = merged_df_cache['data'].fillna('').to_json(orient='records', force_ascii=False)
 
-    df = pd.read_csv(merged_csv_path)
-
-    response = make_response(df.fillna('').to_json(orient='records', force_ascii=False))
+    response = make_response(json_data)
     response.headers["Content-Disposition"] = "attachment; filename=merged.json"
     response.headers["Content-Type"] = "application/json"
     return response
@@ -176,10 +187,20 @@ def page_not_found(e):
     return render_template('error.html', error_message="404 Not Found: The requested page does not exist."), 404
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description="Run the column merge web app.")
+    parser.add_argument('--debug', action='store_true', help='Enable debug mode.')
+
+    args = parser.parse_args()
+
+    app.debug = args.debug
+
     host = '127.0.0.1'
     port = 5000
 
     print(f"Starting server at http://{host}:{port}/")
     print("Press CTRL+C to quit.")
 
-    serve(app, host=host, port=port)
+    if args.debug:
+        app.run(debug=True, use_reloader=False, host=host, port=port)
+    else:
+        serve(app, host=host, port=port)

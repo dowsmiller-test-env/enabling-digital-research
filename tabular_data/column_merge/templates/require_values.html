@@ -12,7 +12,7 @@
     </header>
     <div class="container">
         <p class="instructions">{{ instructions }}</p>
-        <form method="post" action="/merge">
+        <form method="post" action="/merge" enctype="multipart/form-data">
 
             <div class="columns-wrapper">
                 {% for file, columns in files.items() %}

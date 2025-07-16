@@ -1,16 +1,28 @@
 import os
-import pandas as pd
 from functools import reduce
+from io import StringIO
+import pandas as pd
 
-def load_and_merge(files_with_columns, merge_keys, upload_dir):
+def load_and_merge(files_with_columns, merge_keys, csv_contents):
+    """
+    csv_contents: dict mapping filename -> CSV string content (in-memory)
+    """
+
     dfs = []
     for file_name, columns in files_with_columns.items():
-        file_path = os.path.join(upload_dir, file_name)
-        df = pd.read_csv(file_path, low_memory=False)
+        content_str = csv_contents.get(file_name)
+        if content_str is None:
+            raise ValueError(f"No CSV content found for file {file_name}")
+
+        df = pd.read_csv(StringIO(content_str), low_memory=False, encoding='utf-8-sig')
 
         merge_key = merge_keys.get(file_name)
         if not merge_key or merge_key not in df.columns:
             raise ValueError(f"Merge key '{merge_key}' not found in {file_name}.")
+
+        missing_cols = [col for col in columns if col not in df.columns]
+        if missing_cols:
+            raise ValueError(f"Missing columns {missing_cols} in file {file_name}")
 
         if merge_key not in columns:
             columns.append(merge_key)
