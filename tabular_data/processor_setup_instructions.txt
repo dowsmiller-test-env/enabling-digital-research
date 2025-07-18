@@ -9,19 +9,26 @@ Follow the steps below to set up and run the data processor script on Mac,
 	repository directly.
 
 
-2. Make any necessary adjustments to the _global_config and config files.
+2. Update the Source Files (if required)
+	If you wish to run the processor over a subset of the MMOL data, or over
+	any other dataset, you will need to change the data contained within the
+	repository. See the read_me file in the `config` directory for further
+	details.
+
+
+3. Modify the _global_config and config files (if required)
 
 	See the read_me file in the `config` directory for further details.
 
 
-3. Open a Terminal or Command Prompt
+4. Open a Terminal or Command Prompt
 
 	Navigate to the `tabular_data` directory in your terminal (Mac/Linux) or
 	Command Prompt/PowerShell (Windows), or open a new Terminal/Command Prompt
 	window at that directory.
 
 
-4. Check Python and pip Installation
+5. Check Python and pip Installation
 
 	Make sure Python 3 and pip are installed:
 
@@ -38,7 +45,7 @@ Follow the steps below to set up and run the data processor script on Mac,
 	If not installed, download Python from https://www.python.org/downloads/
 
 
-5. Create a Virtual Environment
+6. Create a Virtual Environment
 
 	Mac/Linux:
 
@@ -49,7 +56,7 @@ Follow the steps below to set up and run the data processor script on Mac,
 		python -m venv .venv
 
 
-6. Activate the Virtual Environment
+7. Activate the Virtual Environment
 
 	Mac/Linux:
 
@@ -64,7 +71,7 @@ Follow the steps below to set up and run the data processor script on Mac,
 		.venv\Scripts\Activate.ps1
 
 
-7. Install Dependencies
+8. Install Dependencies
 
 	Once the virtual environment is active, install the required
 	Python packages:
@@ -72,14 +79,14 @@ Follow the steps below to set up and run the data processor script on Mac,
 		pip install -r requirements.txt
 
 
-8. Run the Processor Script
+9. Run the Processor Script
 
 	Run the main script to process the data:
 
 		python processor.py
 
 
-9. Output
+10. Output
 
 	After processing is complete, the results will be saved in the
 	`output` folder.
