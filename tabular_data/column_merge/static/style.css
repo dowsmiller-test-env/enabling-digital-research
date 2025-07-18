@@ -126,6 +126,20 @@ button:hover,
   background-color: #003f80;
 }
 
+.remove-file {
+    background: none;
+    border: none;
+    color: #a00;
+    cursor: pointer;
+    font-size: 1em;
+    padding: 0;
+    margin: 0;
+}
+
+.remove-file:hover {
+    color: #d00;
+}
+
 /* Button Group */
 .button-group form {
   display: inline;

@@ -23,18 +23,18 @@
                         {% set all_columns = columns %}
                     {% endif %}
                     <fieldset>
-                    <legend><strong>{{ file }}</strong></legend>
-                    <div class="checkboxes">
-                        {% for column in all_columns %}
-                        {% if column %}
-                            {% set is_merge_key = (column == merge_key) %}
-                            <label>
-                            <input type="checkbox" name="required_columns" value="{{ column }}" {% if is_merge_key %}checked disabled{% endif %}>
-                            {{ column }}
-                            </label>
-                        {% endif %}
-                        {% endfor %}
-                    </div>
+                        <legend><strong>{{ file }}</strong></legend>
+                        <div class="checkboxes">
+                            {% for column in all_columns %}
+                                {% if column %}
+                                    {% set is_merge_key = (column == merge_key) %}
+                                    <label>
+                                        <input type="checkbox" name="required_columns" value="{{ column }}" {% if is_merge_key %}checked disabled{% endif %}>
+                                        {{ column }}
+                                    </label>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
                     </fieldset>
                 {% endfor %}
                 {% for file, key in merge_keys.items() %}
@@ -42,11 +42,11 @@
                 {% endfor %}
             </div>
 
-            <!-- Tickbox to select all -->
+            <!-- Tickboxes -->
             <label><input type="checkbox" id="all_required"> Select all columns</label><br>
-            <label><input type="checkbox" name="exclude_empty_rows" value="true">Exclude empty rows</label><br>
+            <label><input type="checkbox" name="exclude_empty_rows" value="true"> Exclude empty rows</label><br>
+            <label><input type="checkbox" name="exclude_duplicates" value="true"> Exclude duplicates</label><br>
             <input type="hidden" name="files" value='{{ files_json | safe }}'>
-            <!-- Note: merge_key selection per file would ideally be passed here if multiple keys were supported -->
             <input type="submit" class="btn" value="Merge">
         </form>
     </div>

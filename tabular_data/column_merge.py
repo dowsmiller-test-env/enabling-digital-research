@@ -24,13 +24,10 @@ def index():
         files = request.files.getlist('files')
         for file in files:
             filename = secure_filename(file.filename) if file.filename else ""
-            content = file.read()  # bytes
-
+            content = file.read()
             content_str = content.decode('utf-8-sig').lstrip('\r\n')
-
             uploaded_files_data[filename] = content_str
 
-        # Redirect with filenames as params
         return redirect('/select?files=' + ','.join(uploaded_files_data.keys()))
 
     instructions = (
@@ -89,11 +86,11 @@ def require_values():
             else:
                 files_with_columns[key] = values
 
-            for file, merge_key in merge_keys.items():
-                if file not in files_with_columns:
-                    files_with_columns[file] = []
-                if merge_key not in files_with_columns[file]:
-                    files_with_columns[file].append(merge_key)
+        for file, merge_key in merge_keys.items():
+            if file not in files_with_columns:
+                files_with_columns[file] = []
+            if merge_key not in files_with_columns[file]:
+                files_with_columns[file].append(merge_key)
 
         instructions = (
             "Step 3: Choose which columns must contain data, and optionally exclude empty rows. "
@@ -110,6 +107,7 @@ def merge():
     form = request.form.to_dict(flat=False)
 
     exclude_empty = form.pop('exclude_empty_rows', ['false'])[0] == 'true'
+    exclude_duplicates = form.pop('exclude_duplicates', ['false'])[0] == 'true'
     required_columns = form.pop('required_columns', [])
     files_with_columns = json.loads(form['files'][0])
 
@@ -118,6 +116,9 @@ def merge():
     csv_contents = {filename: uploaded_files_data[filename] for filename in files_with_columns.keys()}
 
     merged_df = load_and_merge(files_with_columns, merge_keys, csv_contents)
+
+    # Rename merge key column
+    merged_df.rename(columns={'metadata: part ID': 'merge_key'}, inplace=True)
 
     if exclude_empty or required_columns:
         if required_columns:
@@ -129,9 +130,12 @@ def merge():
                         prefixed_required_cols.append(f"{prefix}: {col}")
             cols_to_check = prefixed_required_cols
         else:
-            cols_to_check = [col for col in merged_df.columns if col != 'metadata: part ID']
+            cols_to_check = [col for col in merged_df.columns if col != 'merge_key']
 
         merged_df = merged_df.dropna(subset=cols_to_check, how='any')
+
+    if exclude_duplicates:
+        merged_df = merged_df.drop_duplicates()
 
     merged_df_cache['data'] = merged_df
 
@@ -167,7 +171,6 @@ def download_json():
 
 @app.errorhandler(Exception)
 def handle_all_exceptions(e):
-    # Log the full traceback (for debugging)
     tb = traceback.format_exc()
     app.logger.error(f"Unhandled Exception: {tb}")
 
@@ -176,7 +179,6 @@ def handle_all_exceptions(e):
         "Please try again."
     )
 
-    # Include error details (only in debug mode):
     if app.debug:
         error_msg += f"<pre>{tb}</pre>"
 

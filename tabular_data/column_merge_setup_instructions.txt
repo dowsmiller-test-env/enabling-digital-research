@@ -1,4 +1,4 @@
-CSV Merge Web App - Setup Instructions
+Column Merge App - Setup Instructions
 
 Follow the steps below to set up and run the CSV merging web application on Mac,
 	Windows, or Linux.
@@ -7,6 +7,7 @@ Follow the steps below to set up and run the CSV merging web application on Mac,
 
 	Clone the repository to your local machine using git, or download the
 	repository directly.
+
 2. Open a Terminal or Command Prompt
 
 	Navigate to the `tabular_data` directory in your terminal (Mac/Linux) or

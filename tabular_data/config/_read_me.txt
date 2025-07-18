@@ -21,7 +21,7 @@ Below is an explanation of the information contained within each of the default
 		and scholars who had cataloguing priorities and practices that
 		are different to those of modern cataloguers. In particular,
 		in previous cataloguing cycles, measurements have often been
-		rounded to the nearest 5mm or quarter/eigth of an inch, and
+		rounded to the nearest 5mm or quarter/eighth of an inch, and
 		features such as decoration have been described using
 		assessments of aesthetic and material quality (e.g. "Good
 		border"), rather than through dispassionate descriptions of
