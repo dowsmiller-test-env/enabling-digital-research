@@ -1,0 +1,41 @@
+# .github/workflows/run-processor.yml
+name: Run Processor
+
+on:
+  workflow_dispatch:  # Manual trigger from GitHub UI
+
+jobs:
+  process:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Set up virtual environment
+        run: |
+          python -m venv .venv
+          source .venv/bin/activate
+          pip install --upgrade pip
+          pip install -r tabular_data/requirements.txt
+
+      - name: Run processor script
+        run: |
+          source .venv/bin/activate
+          python tabular_data/processor.py
+
+      - name: Commit output changes
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add tabular_data/output
+          git diff --quiet && git diff --staged --quiet || git commit -m "Update output from processor"
+          git push
