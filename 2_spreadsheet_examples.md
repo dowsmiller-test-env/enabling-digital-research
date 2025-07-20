@@ -1,4 +1,9 @@
+layout: page
+title: "2. Worked Examples using the Spreadsheets"
+permalink: /2_spreadsheet_examples
+
 # 2. Worked Examples using the Spreadsheets
+
 Follow along with these worked examples to gain an idea of the sorts of research questions that the MMOL Tabular Data can help you answer.
 
 The examples here are given for Excel for Mac version 16, and reflect the state of the tabular data at the time this guide was compiled (July 2025), so the exact process and your eventual results may differ from what you see here.
