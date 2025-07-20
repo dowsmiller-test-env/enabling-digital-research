@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>3. Setting up the Column Merge App (Intermediate)</title>
+  <link rel="canonical" href="/3_merge_app">
+  <link rel="stylesheet" href="static/style.css" />
+</head>
+<body>
+  <div class="container"><main>
+    <h1>3. Setting up the Column Merge App (Intermediate)</h1>
+
+    <p>The Column Merge app has been produced to allow you to combine columns from across different sheets of the output, without needing to engage in complex Excel formulae or running much code. This is useful when your requirements are more complex than have been accounted for in the default output data.</p>
+
+    <p>Follow the steps below to set up and run the column merge app on Mac, Windows, or Linux (steps 1–6 are shared with the Processor, as below).</p>
+
+    <h2>1. Clone the Repository</h2>
+    <p>Clone the repository to your local machine using git, or download the repository directly.</p>
+
+    <h2>2. Open a Terminal or Command Prompt</h2>
+    <p>Navigate to the <code>tabular_data</code> directory in your terminal (Mac/Linux) or Command Prompt/PowerShell (Windows), or open a new Terminal/Command Prompt window at that directory.</p>
+
+    <h2>3. Check Python and pip Installation</h2>
+    <p>In the Terminal or Command Prompt, run the following commands to make sure that Python 3 and pip are installed:</p>
+
+    <p><strong>Mac/Linux:</strong></p>
+    <pre><code>python3 --version
+pip3 --version</code></pre>
+
+    <p><strong>Windows:</strong></p>
+    <pre><code>python --version
+pip --version</code></pre>
+
+    <p>If Python is not installed, download Python from <a href="https://www.python.org/downloads/">https://www.python.org/downloads/</a></p>
+
+    <h2>4. Create a Virtual Environment</h2>
+    <p>Run the following commands to create a virtual environment:</p>
+
+    <p><strong>Mac/Linux:</strong></p>
+    <pre><code>python3 -m venv .venv</code></pre>
+
+    <p><strong>Windows:</strong></p>
+    <pre><code>python -m venv .venv</code></pre>
+
+    <h2>5. Activate the Virtual Environment</h2>
+
+    <p><strong>Mac/Linux:</strong></p>
+    <pre><code>source .venv/bin/activate</code></pre>
+
+    <p><strong>Windows (Command Prompt):</strong></p>
+    <pre><code>.venv\Scripts\activate.bat</code></pre>
+
+    <p><strong>Windows (PowerShell):</strong></p>
+    <pre><code>.venv\Scripts\Activate.ps1</code></pre>
+
+    <h2>6. Install Dependencies</h2>
+    <p>Once the virtual environment is active, install the required Python packages:</p>
+    <pre><code>pip install -r requirements.txt</code></pre>
+
+    <h2>7. Run the Web Application</h2>
+    <p>Start the web server with:</p>
+    <pre><code>python column_merge.py</code></pre>
+
+    <p>You should see the following output:</p>
+    <pre><code>Starting server at http://127.0.0.1:5000/
+Press CTRL+C to quit.</code></pre>
+
+    <h2>8. Access the App</h2>
+    <p>To access and use the app, open your web browser and go to:</p>
+    <pre><code>http://127.0.0.1:5000/</code></pre>
+
+    <h2>9. Use the App</h2>
+    <p>Follow the instructions on each page to perform the merge and download the resulting file. For worked examples, see below.</p>
+
+    <h2>10. Stop the Server</h2>
+    <p>To stop the app, return to the terminal and press:</p>
+    <pre><code>Control + C</code></pre>
+  </main></div>
+</body>
+</html>
