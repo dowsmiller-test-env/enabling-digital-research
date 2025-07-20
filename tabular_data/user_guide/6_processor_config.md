@@ -1,3 +1,7 @@
+layout: page
+title: "6. Configuring the Processor"
+permalink: /6_processor_config
+
 # 6. Configuring the Processor (Advanced)
 
 If you wish to customise the configuration files for your own purposes, you can do so by modifying the CSV files in the ‘config’ directory. This section of the guide contains information on the process of extraction, as well as what information is expected for both the ‘collection’ and the ‘authority’ configuration files.
