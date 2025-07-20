@@ -2,7 +2,12 @@
 name: Run Processor
 
 on:
-  workflow_dispatch:  # Manual trigger from GitHub UI
+  workflow_dispatch:
+
+  push:
+    paths:
+      - 'collections/**'
+      - '*.xml'
 
 jobs:
   process:
