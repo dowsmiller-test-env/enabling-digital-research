@@ -53,11 +53,28 @@
 
     <script>
         const allBox = document.getElementById('all_required');
+        const columnCheckboxes = document.querySelectorAll('input[name="required_columns"]');
+
+        // Handle "Select all" checkbox toggle
         allBox.addEventListener('change', () => {
-            document.querySelectorAll('input[name="required_columns"]:not(:disabled)').forEach(cb => {
-                cb.checked = allBox.checked;
+            columnCheckboxes.forEach(cb => {
+                if (!cb.disabled) {
+                    cb.checked = allBox.checked;
+                }
             });
         });
+
+        // Uncheck "Select all" if any column checkbox is manually unchecked
+        columnCheckboxes.forEach(cb => {
+            if (!cb.disabled) {
+                cb.addEventListener('change', () => {
+                    if (!cb.checked) {
+                        allBox.checked = false;
+                    }
+                });
+            }
+        });
     </script>
+
 </body>
 </html>
