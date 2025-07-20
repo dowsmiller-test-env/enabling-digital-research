@@ -1,3 +1,7 @@
+layout: page
+title: "4. Worked Examples Using the Column Merge App"
+permalink: /4_merge_examples
+
 # 4. Worked Examples Using the Column Merge App (Intermediate)
 
 ## Example 1: Find all the IIIF manifest URIs for manuscripts containing musical notation.
