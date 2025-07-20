@@ -1,3 +1,7 @@
+layout: page
+title: "5. Using the Processor"
+permalink: /5_processor_setup
+
 # 5. Using the Processor (Intermediate)
 
 If you want to run the processor on your own machine, either over the MMOL data or on another dataset, follow the steps below (steps 1 and 4–8 are shared with the Column Merge app, as above). These instructions can also be found in the `processor_setup_instructions.txt` file in the `tabular_data` directory.
