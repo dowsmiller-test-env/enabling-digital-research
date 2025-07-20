@@ -6,4 +6,4 @@ You do not need to be able to run the processor in order to access the output da
 
 The processor is accompanied by an app which runs locally in a browser and enables users to merge files output by the processor, to suit diverse requirements for use of the data.
 
-<a href="https://digital-scholarship-oxford.github.io/enabling-digital-research" target="_blank" rel="noopener noreferrer">Click here</a> to access the user guide for the data, column merge app, and processor.
+<a href="https://digital-scholarship-oxford.github.io/enabling-digital-research" target="_blank" rel="noopener noreferrer">Click here to access the user guide</a>.
