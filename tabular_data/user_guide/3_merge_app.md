@@ -1,3 +1,7 @@
+layout: page
+title: "3. Setting up the Column Merge App"
+permalink: /3_merge_app
+
 # 3. Setting up the Column Merge App (Intermediate)
 
 The Column Merge app has been produced to allow you to combine columns from across different sheets of the output, without needing to engage in complex Excel formulae or running much code. This is useful when your requirements are more complex than have been accounted for in the default output data.
