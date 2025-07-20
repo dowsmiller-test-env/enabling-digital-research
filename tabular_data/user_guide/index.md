@@ -1,4 +1,6 @@
-
+layout: page
+title: "MMOL Tabular Data: User Guide"
+permalink: /
 
 # MMOL Tabular Data: User Guide
 
