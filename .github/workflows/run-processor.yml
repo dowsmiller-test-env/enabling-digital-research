@@ -6,6 +6,7 @@ on:
 
   push:
     paths:
+      - 'tabular_data/**'
       - 'collections/**'
       - '*.xml'
 
