@@ -18,19 +18,15 @@ jobs:
 
     steps:
       - name: Checkout full repository
-        uses: actions/checkout@v2
-
-      - name: Debug - find tabular_data directory
-        run: |
-          find . -type d
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.x'
-
-      - name: Debug - list root directory
-        run: ls -l
 
       - name: Install dependencies
         run: |
