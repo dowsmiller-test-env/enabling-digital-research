@@ -1,4 +1,3 @@
-# .github/workflows/run-processor.yml
 name: Run Processor
 
 on:
@@ -19,7 +18,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-      - uses: actions/checkout@v4
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           sparse-checkout: false
@@ -29,17 +28,18 @@ jobs:
         with:
           python-version: '3.x'
 
-      - name: Set up virtual environment
+      - name: Install dependencies
         run: |
           cd tabular_data
           python -m venv .venv
           source .venv/bin/activate
           pip install --upgrade pip
-          pip install -r tabular_data/requirements.txt
+          pip install -r requirements.txt
 
-      - name: Run processor script
+      - name: Run processor
         run: |
-          python -m venv .venv
+          cd tabular_data
+          source .venv/bin/activate
           python processor.py
 
       - name: Commit output changes
