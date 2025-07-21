@@ -3,6 +3,7 @@ name: Run Processor
 on:
   workflow_dispatch:
 
+  # To stop the processor running every time relevant files are pushed, comment the lines below:
   push:
     paths:
       - 'tabular_data/config/**'
@@ -12,6 +13,10 @@ on:
       - 'tabular_data/requirements.txt'
       - 'collections/**'
       - '*.xml'
+
+  # To run the processor automatically at 03:30 UTC every Monday, uncomment the lines below:
+  # schedule:
+  #   - cron: '30 3 * * 1'
 
 jobs:
   process:
