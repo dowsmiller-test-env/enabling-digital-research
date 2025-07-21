@@ -3,8 +3,7 @@ import re
 import math
 import pandas as pd
 import xml.etree.ElementTree as ET
-import elementpath
-from elementpath.xpath3 import XPath31Parser
+from saxonche import PySaxonProcessor
 from collections import defaultdict
 from itertools import chain
 from pathlib import Path
@@ -375,23 +374,50 @@ def extract_with_xpath(xml_element, xpath_expr):
     """
     if xml_element is None:
         tqdm.write("XPath extraction failed. XML file not found.")
-        return
+        return []
 
     try:
-        result = elementpath.select(
-            xml_element, 
-            xpath_expr, 
-            namespaces={'tei': 'http://www.tei-c.org/ns/1.0'},
-            parser=XPath31Parser
-        )
-        # Convert non-list results to a list
-        if not isinstance(result, list):
-            result = [result]
+        xml_str = ET.tostring(xml_element, encoding="unicode")
+        with PySaxonProcessor(license=False) as proc:
+            doc = proc.parse_xml(xml_text=xml_str)
+            if doc is None:
+                tqdm.write("Failed to parse XML string into Saxon XdmNode.")
+                return []
+
+            xpath_proc = proc.new_xpath_processor()
+            xpath_proc.declare_namespace("tei", "http://www.tei-c.org/ns/1.0")
+            xpath_proc.set_context(xdm_item=doc)
+
+            result = xpath_proc.evaluate(xpath_expr)
+            if result is None:
+                return []
+
+            # Convert result to a list of strings
+            items = []
+            try:
+                for i in range(result.size):
+                    item = result.item_at(i)
+                    if hasattr(item, 'string_value'):
+                        items.append(item.string_value)
+                    else:
+                        items.append(str(item))
+            except Exception as e:
+                tqdm.write(f"Could not iterate result items. Error: {e}")
+                # fallback for singleton result
+                try:
+                    if hasattr(result, 'string_value'):
+                        items.append(result.string_value)
+                    else:
+                        items.append(str(result))
+                except Exception as inner_e:
+                    tqdm.write(f"Failed to extract string value from result. Error: {inner_e}")
+                    return []
+
+            return items
 
     except Exception as e:
         tqdm.write(f"XPath extraction failed. Offending XPath: {xpath_expr}. Error: {e}")
-        result = ""
-    return result
+        return []
 
 # Helper function to determine the separator for authority lookups
 def get_separator(separator, separator_map):
@@ -821,6 +847,7 @@ def save_as_xlsx(df_list, config_list, output_dir, output_filename):
     except Exception as e:
         tqdm.write(f"Saving data to '{output_filename}.xlsx' failed. Error: {e}")
 
+# Helper function to merge and center cells in the first row of the worksheet
 def merge_and_center_cells(worksheet, sections):
     """
     Merges and centers identical consecutive section values in the first row of the worksheet.
