@@ -5,7 +5,11 @@ on:
 
   push:
     paths:
-      - 'tabular_data/**'
+      - 'tabular_data/config/**'
+      - 'tabular_data/_global_config.py'
+      - 'tabular_data/processor.py'
+      - 'tabular_data/processor_helpers.py'
+      - 'tabular_data/requirements.txt'
       - 'collections/**'
       - '*.xml'
 
