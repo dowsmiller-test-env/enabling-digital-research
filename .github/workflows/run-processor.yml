@@ -19,7 +19,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          sparse-checkout: false
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -28,6 +31,7 @@ jobs:
 
       - name: Set up virtual environment
         run: |
+          cd tabular_data
           python -m venv .venv
           source .venv/bin/activate
           pip install --upgrade pip
@@ -35,8 +39,8 @@ jobs:
 
       - name: Run processor script
         run: |
-          source .venv/bin/activate
-          python tabular_data/processor.py
+          python -m venv .venv
+          python processor.py
 
       - name: Commit output changes
         run: |
