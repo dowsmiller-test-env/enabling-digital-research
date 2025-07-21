@@ -28,6 +28,9 @@ jobs:
         with:
           python-version: '3.x'
 
+      - name: Debug - list root directory
+        run: ls -l
+
       - name: Install dependencies
         run: |
           cd tabular_data
