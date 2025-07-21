@@ -18,10 +18,7 @@ jobs:
 
     steps:
       - name: Checkout full repository
-        uses: actions/checkout@v4
-        with:
-          ref: main
-          fetch-depth: 0
+        uses: actions/checkout@v2
 
       - name: Debug - find tabular_data directory
         run: |
