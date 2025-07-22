@@ -14,7 +14,7 @@
     <div class="next-link"><a href="/enabling-digital-research/2_spreadsheet_examples">Next →</a></div>
   </header>
   <div class="container"><main>
-
+    <h2>Data Structure</h2>
     <p>The data outputs of this project are intended to be used by researchers of all levels, from those with no knowledge of the underlying TEI-XML data, through to experienced users who nevertheless want to access the data in a format that enables cross-comparison.</p>
 
     <p>You do not need to be able to run the processor in order to access the outputs. They can be found in the <code>tabular_data/output</code> folder, where there are two kinds:</p>
@@ -24,6 +24,7 @@
       <li><strong>Authority:</strong> these are the data which have been extracted from the authority files which accompany the collection, and so predominantly contain information about people, places, and organisations associated with the collections.</li>
     </ol>
 
+    <h2>Download</h2>
     <p>The data are presented in three formats:</p>
     <ol>
       <li>A single XLSX (Excel) file, containing tabs for each of the configured outputs. This is the recommended format, as the data in each tab are grouped into sections, with accompanying notes explaining the content of each column.</li>
@@ -31,9 +32,34 @@
       <li>A set of JSON files, each one corresponding to a tab in the XLSX output.</li>
     </ol>
 
-    <p>Details of the default contents of each tab of the Excel files (or individual CSV/JSON files) can be found below.</p>
+    <p>To download the files, click on the links below:</p>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Collections Data (Manuscripts)</th>
+          <th>Authority Data (Organisations, People, Places, and Works)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><a href="https://github.com/Digital-Scholarship-Oxford/enabling-digital-research/raw/refs/heads/main/tabular_data/output/collection/collection_data.xlsx" target="_blank">XLSX (Excel)</a></td>
+          <td><a href="https://github.com/Digital-Scholarship-Oxford/enabling-digital-research/raw/refs/heads/main/tabular_data/output/authority/authority_data.xlsx" target="_blank">XLSX (Excel)</a></td>
+        </tr>
+        <tr>
+          <td><a href="https://github.com/Digital-Scholarship-Oxford/enabling-digital-research/tree/main/tabular_data/output/collection/csv" target="_blank">CSV</a></td>
+          <td><a href="https://github.com/Digital-Scholarship-Oxford/enabling-digital-research/tree/main/tabular_data/output/authority/csv" target="_blank">CSV</a></td>
+        </tr>
+        <tr>
+          <td><a href="https://github.com/Digital-Scholarship-Oxford/enabling-digital-research/tree/main/tabular_data/output/collection/json" target="_blank">JSON</a></td>
+          <td><a href="https://github.com/Digital-Scholarship-Oxford/enabling-digital-research/tree/main/tabular_data/output/authority/json" target="_blank">JSON</a></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p><a href="https://github.com/Digital-Scholarship-Oxford/enabling-digital-research" target="_blank">Click here to access the whole repository on GitHub, where you can download it in full.</a></p>
 
     <h2>Collection</h2>
+      <p>Details of the default contents of each tab of the Excel files (or individual CSV/JSON files) can be found below.</p>
 
     <h3>00_overview</h3>
     <p>Each row of the output file corresponds to a manuscript unit, be that a part (<code>msPart</code>) or a whole MS (<code>msDesc</code>). The output file contains a variety of basic information about the unit in question, including details of its origin, provenance, acquisition, contents, codicology, palaeography, and binding, and a number of measurements.</p>
@@ -69,6 +95,7 @@
     <p>Each row of the output file corresponds to an individual set of information given about the history of a manuscript unit, as contained within a <code>provenance</code> or <code>acquisition</code> element. This contains overview information about the historical detail in question, as well as date information, and details of any people, organisations, or places associated with the historical detail, with additional details given about former owners.</p>
 
     <h2>Authority</h2>
+    <p>Details of the default contents of each tab of the Excel files (or individual CSV/JSON files) can be found below.</p>
 
     <h3>orgs</h3>
     <p>Each row of the output file corresponds to an organisation named within the authority file <code>places.xml</code>.</p>
