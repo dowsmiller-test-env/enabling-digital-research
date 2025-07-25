@@ -29,7 +29,7 @@ jobs:
 
       - name: Checkout latest changes from medieval-mss
         run: |
-          git checkout medieval-mss/main -- collections/** *.xml
+          git checkout medieval-mss/master -- collections/** *.xml
           
       - name: Commit pulled changes
         run: |
