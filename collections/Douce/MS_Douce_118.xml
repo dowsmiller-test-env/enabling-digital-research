@@ -42,7 +42,7 @@
                </msIdentifier>
                <head>Psalter ('The Aspremont Psalter'), Companion Volume to a Book of Hours; France, Lorraine (?), late 13th or early 14th century</head>
                <msContents>
-                  <msItem class="#liturgica #biblia" n="1" xml:id="MS_Douce_118-item1"><locus from="1r" to="276v" type="inferred"/>
+                  <msItem class="#liturgica #biblia" n="1" xml:id="MS_Douce_118-item1">
                      <title key="work_14114" type="desc">Psalter</title>
                      <note>('The Aspremont Psalter')</note>
                     
@@ -133,7 +133,7 @@
                            margin on fol. 182r: ‘h. h. Ga. te. de. p’ (?). Fol. 182v is blank.
                         </note>
                      </msItem>
-                     <textLang mainLang="la">Latin</textLang>
+                     <textLang mainLang="la" otherLangs="frm">Latin with a little French (fols. 181v-182r)</textLang>
                   </msItem>
                </msContents>
                <physDesc>
@@ -353,7 +353,7 @@
                <additional>
                   <adminInfo>
                      <recordHist>
-                        <source>Summary description based on Elizabeth Solopova, <title>Latin
+                        <source>Elizabeth Solopova, <title>Latin
                               Liturgical Psalters in the Bodleian Library: A Select
                               Catalogue</title> (Oxford, 2013), pp. 297–305. Previously described in
                            the Summary Catalogue. <listBibl>

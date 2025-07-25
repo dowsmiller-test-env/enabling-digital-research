@@ -41,7 +41,7 @@
                   </altIdentifier>
                </msIdentifier>
                <msContents>
-                  <msItem n="1" xml:id="MS_Laud_Misc_100-item1"><locus from="1r" to="199v" type="inferred"/>
+                  <msItem n="1" xml:id="MS_Laud_Misc_100-item1">
                      <author key="person_44320252">Willelmus Durandus</author>
                      <title key="work_4984">Rationale divinorum officiorum</title>
                      <textLang mainLang="la">Latin</textLang>
