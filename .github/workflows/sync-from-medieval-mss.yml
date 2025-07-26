@@ -1,10 +1,10 @@
 name: Sync from bodleian/medieval-mss
 
 on:
-  # Uncomment this section to make the action run automatically at 03:15 UTC every Monday
-  # schedule:
-    # # Run the action at 03:15 UTC every Monday
-    # - cron: '15 3 * * 1'
+  # The action runs automatically at 03:15 UTC every Monday
+  schedule:
+    # Run the action at 03:15 UTC every Monday
+    - cron: '15 3 * * 1'
 
   workflow_dispatch:
 
