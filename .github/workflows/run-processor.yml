@@ -3,20 +3,20 @@ name: Run Processor
 on:
   workflow_dispatch:
 
-  # To stop the processor running every time relevant files are pushed, comment the lines below:
-  push:
-    paths:
-      - 'tabular_data/config/**'
-      - 'tabular_data/_global_config.py'
-      - 'tabular_data/processor.py'
-      - 'tabular_data/processor_helpers.py'
-      - 'tabular_data/requirements.txt'
-      - 'collections/**'
-      - '*.xml'
+  # To run the processor every time relevant files are pushed, uncomment the lines below:
+  # push:
+  #   paths:
+  #     - 'tabular_data/config/**'
+  #     - 'tabular_data/_global_config.py'
+  #     - 'tabular_data/processor.py'
+  #     - 'tabular_data/processor_helpers.py'
+  #     - 'tabular_data/requirements.txt'
+  #     - 'collections/**'
+  #     - '*.xml'
 
-  # To run the processor automatically at 03:30 UTC every Monday, uncomment the lines below:
-  # schedule:
-  #   - cron: '30 3 * * 1'
+  # The processor runs automatically at 03:30 UTC every Monday:
+  schedule:
+    - cron: '30 3 * * 1'
 
 jobs:
   process:
