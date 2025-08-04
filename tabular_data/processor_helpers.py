@@ -656,10 +656,12 @@ def parse_shelfmark(text):
     Returns:
         str: A single normalised string for sorting.
     """
+    # Handle nulls
     if pd.isnull(text):
         return ""
 
-    clean = str(text).replace('–', '-')
+    # Normalise dashes and split tokens
+    clean = str(text).replace('–', '-').replace('—', '-')
     tokens = re.split(r'[^\w\-]+', clean)
     parsed = []
 
@@ -667,11 +669,14 @@ def parse_shelfmark(text):
         if not token:
             continue
 
-        # Handle dash ranges (e.g. "65-9")
+        # Handle dash ranges
         if re.match(r'^\d+-\d+$', token):
             start, end = map(int, token.split('-'))
-            mid = start + (end - start) / 2
-            parsed.append(f"{mid:05.1f}")
+            if start <= end: # e.g. 10-20
+                sort_value = end
+            else: #e.g. 20-5
+                sort_value = float(start)
+            parsed.append(f"{sort_value:05.1f}")
 
         # Handle digit + letter suffix (e.g. "10b")
         elif re.match(r'^\d+[a-zA-Z]$', token):
@@ -686,6 +691,7 @@ def parse_shelfmark(text):
             parsed.append(token.lower())
 
     return " ".join(parsed)
+
 
 # Helper function to save DataFrame as either csv or json file
 def save_as(df, output_dir, config_name, format):
@@ -808,7 +814,7 @@ def save_as_xlsx(df_list, config_list, output_dir, output_filename):
                 # Force formula-looking strings to text in data cells
                 for row in worksheet.iter_rows(min_row=3, max_row=worksheet.max_row):
                     for cell in row:
-                        if isinstance(cell.value, str) and cell.value.startswith('='):
+                        if isinstance(cell.value, str) and cell.value.startswith(('=', '-', '+', '@')):
                             cell.value = "'" + cell.value
 
                 # Set column widths based on heading length
