@@ -22,6 +22,10 @@ jobs:
   process:
     runs-on: ubuntu-latest
 
+    env:
+      LC_ALL: en_GB.UTF-8
+      LANG: en_GB.UTF-8
+
     permissions:
       contents: write
 
@@ -31,6 +35,13 @@ jobs:
         with:
           ref: main
           fetch-depth: 0
+
+      - name: Set up locale
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y locales
+          sudo locale-gen en_GB.UTF-8
+          sudo update-locale LANG=en_GB.UTF-8
 
       - name: Set up Python
         uses: actions/setup-python@v5
