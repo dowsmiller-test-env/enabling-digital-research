@@ -654,11 +654,11 @@ def parse_shelfmark(text):
     Args:
         text (str): The shelfmark string to parse.
     Returns:
-        list: A list of tokens, with numbers converted to integers.
+        str: A single normalised string for sorting.
     """
     if pd.isnull(text):
         return ""
-    
+
     clean = str(text).replace('–', '-')
     tokens = re.split(r'[^\w\-]+', clean)
     parsed = []
@@ -680,6 +680,7 @@ def parse_shelfmark(text):
         # Handle simple digits
         elif token.isdigit():
             parsed.append(f"{int(token):05}")
+            parsed.append("")
 
         else:
             parsed.append(token.lower())
