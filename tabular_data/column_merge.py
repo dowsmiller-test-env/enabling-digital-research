@@ -21,6 +21,7 @@ merged_df_cache = {}
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
+        uploaded_files_data.clear()
         files = request.files.getlist('files')
         for file in files:
             filename = secure_filename(file.filename) if file.filename else ""

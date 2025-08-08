@@ -39,9 +39,16 @@
         let selectedFiles = [];
 
         function formatFileSize(bytes) {
-            if (bytes < 1024) return bytes + ' B';
-            else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
-            else return (bytes / 1048576).toFixed(2) + ' MB';
+            const isWindows = /Win/.test(navigator.userAgent || navigator.platform);
+            const divisor = isWindows ? 1024 : 1000;
+
+            if (bytes < divisor) {
+                return bytes + ' B';
+            } else if (bytes < divisor ** 2) {
+                return (bytes / divisor).toFixed(1) + ' KB';
+            } else {
+                return (bytes / (divisor ** 2)).toFixed(2) + ' MB';
+            }
         }
 
         function updateFileListDisplay() {
@@ -78,12 +85,12 @@
         }
 
         function syncFilesToForm() {
-            fileInputsContainer.innerHTML = ''; // Remove old inputs
+            fileInputsContainer.innerHTML = '';
             selectedFiles.forEach(entry => {
                 const fileInput = document.createElement('input');
                 fileInput.type = 'file';
                 fileInput.name = 'files';
-                fileInput.style.display = 'none'; // Hide from view
+                fileInput.style.display = 'none';
                 fileInput.files = createFileList([entry.file]);
                 fileInputsContainer.appendChild(fileInput);
             });
@@ -115,7 +122,7 @@
             }
             updateFileListDisplay();
             syncFilesToForm();
-            filePicker.value = ''; // Allow re-selection of same file
+            filePicker.value = '';
         });
 
         clearButton.addEventListener('click', () => {

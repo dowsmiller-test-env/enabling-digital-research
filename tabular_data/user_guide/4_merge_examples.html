@@ -25,14 +25,18 @@
       <li>Click/tap on <code>Select files</code> and navigate to the <code>tabular_data/output/collection/csv</code> directory, where the CSV output files for the collection are stored.</li>
       <li>Select <code>01_records.csv</code> and <code>06_music.csv</code>, the two files we want to merge.</li>
       <li>Click/tap <code>Continue</code>, and wait for the files to process.</li>
+      <img class="large-screenshot" src="static/img/m_1_1.png"/>
       <li>On the next page (<code>Select Columns to Merge</code>), we need to select the columns that we want to retain from each CSV file. The <code>Merge Key</code> (the column used to combine the files) can stay as <code>metadata: part ID</code>, since this will correctly align the files based on their shared identifiers. In the left-hand column (<code>01_records.csv</code>), tick the box labelled <code>surrogates: full iiif manifest</code> to tell the app that you want to retain this column.</li>
       <li>In the right-hand column, select the columns from <code>overview: music</code> through to <code>dimensions: unit</code>, to retain information that might be useful for a digital study of musical notation.</li>
       <li>Click/tap <code>Continue</code>.</li>
+      <img class="large-screenshot" src="static/img/m_1_2.png"/>
       <li>On the next page (<code>Select Required Values</code>), we need to select the columns for which data must appear in a given row in order for that row to be included. Given that we’re only interested in manuscripts with a IIIF manifest file, tick <code>surrogates: full iiif manifest</code> in the left-hand column.</li>
       <li>Also select <code>overview: music</code> in the right-hand column, to select only those manuscripts for which details of musical notation have been included in the catalogue.</li>
       <li>Click/tap <code>Merge</code>.</li>
+      <img class="large-screenshot" src="static/img/m_1_3.png"/>
       <li>On the next page (<code>Merged Data Preview</code>), you will see a preview of the merged table, with the merge key (in this case, the manuscript part ID) in the first column, followed by the IIIF manifests and then details of the musical notation.</li>
       <li>To download the data in either CSV or JSON format, click/tap on the appropriate button at the top of the page.</li>
+      <img class="large-screenshot" src="static/img/m_1_4.png"/>
     </ol>
 
     <h2>Example 2: Find available WikiData references for people referenced as authors.</h2>
@@ -46,14 +50,18 @@
       <li>Click/tap on <code>Select files</code> again, and navigate to the <code>tabular_data/output/authority/csv</code> directory, where the CSV output files for the authority data are stored.</li>
       <li>Select <code>persons.csv</code>, the second of the two files that we want to merge.</li>
       <li>Click/tap <code>Continue</code>, and wait for the files to process. <code>05_contents.csv</code> is a large file, so this may take some time.</li>
+      <img class="large-screenshot" src="static/img/m_2_1.png"/>
       <li>On the next page (<code>Select Columns to Merge</code>), we need to select the columns that we want to retain from each CSV file. We want to combine the tables based on the identifiers associated with the authors, so change the <code>Merge Key</code> value for <code>05_contents.csv</code> to <code>author: ID(s)</code>, and change the value for <code>persons.csv</code> to <code>identifiers: ID</code>.</li>
       <li>In the left-hand column, select <code>author: standard name(s)</code>, to include the author’s name.</li>
       <li>In the right-hand column, select <code>identifiers: URI (Wikidata)</code> which is the Wikidata reference we want to associate with each author.</li>
       <li>Click/tap <code>Continue</code>.</li>
+      <img class="large-screenshot" src="static/img/m_2_2.png"/>
       <li>On the next page (<code>Select Required Values</code>), we need to select the columns for which data must appear in a given row in order for that row to be included. This time, we can tick <code>Select all columns</code> and <code>Exclude duplicates</code>, since we only want entries containing all three values, and there is no value in this case of retaining duplicate rows.</li>
       <li>Click/tap <code>Merge</code>.</li>
+      <img class="large-screenshot" src="static/img/m_2_3.png"/>
       <li>On the next page (<code>Merged Data Preview</code>), you will see a preview of the merged table, with the merge key (in this case, the person identifier) in the first column, followed by the text associated with a given author, their name, and their Wikidata reference.</li>
       <li>To download the data in either CSV or JSON format, click/tap on the appropriate button at the top of the page.</li>
+      <img class="large-screenshot" src="static/img/m_2_4.png"/>
     </ol>
   </main></div>
 </body>

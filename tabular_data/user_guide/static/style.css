@@ -208,3 +208,39 @@ code:hover {
 .table a:hover {
   text-decoration: underline;
 }
+
+/* Images */
+img.screenshot, img.large-screenshot, img.graph {
+  display: block;
+  width: auto;
+  height: auto;
+  margin: 0.5rem auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+img.screenshot {
+  max-width: 300px;
+  max-height: 300px;
+}
+
+img.large-screenshot {
+  max-width: 600px;
+  max-height: 600px;
+}
+
+img.graph {
+  max-width: 400px;
+  max-height: 300px;
+  flex: 1 1 250px;
+}
+
+.image-row {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
+  margin: 1rem 0;
+}
