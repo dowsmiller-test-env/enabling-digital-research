@@ -5,15 +5,15 @@ Follow the steps below to set up and run the data processor script on Mac,
 
 1. Clone the Repository
 
-	Clone the repository to your local machine using git, or download the
-	repository directly.
+	Clone the repository to your local machine using git, or download
+	the repository directly.
 
 
 2. Update the Source Files (if required)
-	If you wish to run the processor over a subset of the MMOL data, or over
-	any other dataset, you will need to change the data contained within the
-	repository. See the read_me file in the `config` directory for further
-	details.
+	If you wish to run the processor over a subset of the MMOL data,
+	or over any other dataset, you will need to change the data
+	contained within the repository. See the read_me file in the
+	`config` directory for further details.
 
 
 3. Modify the _global_config and config files (if required)
@@ -23,9 +23,9 @@ Follow the steps below to set up and run the data processor script on Mac,
 
 4. Open a Terminal or Command Prompt
 
-	Navigate to the `tabular_data` directory in your terminal (Mac/Linux) or
-	Command Prompt/PowerShell (Windows), or open a new Terminal/Command Prompt
-	window at that directory.
+	Navigate to the `tabular_data` directory in your terminal
+	(Mac/Linux) or Command Prompt/PowerShell (Windows), or open a new
+	Terminal/Command Prompt window at that directory.
 
 
 5. Check Python and pip Installation
@@ -88,5 +88,5 @@ Follow the steps below to set up and run the data processor script on Mac,
 
 10. Output
 
-	After processing is complete, the results will be saved in the
-	`output` folder.
+	After processing is complete, the results will be saved in
+	the `output` folder.
