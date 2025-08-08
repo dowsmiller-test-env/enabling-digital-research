@@ -1,7 +1,7 @@
 Column Merge App - Setup Instructions
 
-Follow the steps below to set up and run the CSV merging web application on Mac,
-	Windows, or Linux.
+Follow the steps below to set up and run the CSV merging web application
+on Mac, Windows, or Linux.
 
 1. Clone the Repository
 
