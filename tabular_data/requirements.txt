@@ -2,6 +2,6 @@ pandas==2.2.3
 tqdm==4.67.1
 saxonche==12.8.0
 openpyxl==3.1.5
-Flask==2.3
-Werkzeug==2.3
+Flask==2.3.2
+Werkzeug==3.0.6
 waitress==3.0.2
