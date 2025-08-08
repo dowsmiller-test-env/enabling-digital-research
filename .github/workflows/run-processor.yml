@@ -66,8 +66,36 @@ jobs:
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+          # Stash current uncommitted changes
+          git stash push --include-untracked --quiet
+
+          # Update branch with remote changes
           git fetch origin main
           git pull --rebase origin main || git rebase --skip
+
+          # Restore the stashed changes
+          git stash pop --quiet || true
+
+          # Force our version of the output folder to win conflicts
+          if ! git checkout --ours tabular_data/output 2>/dev/null; then
+            echo "No conflicts in tabular_data/output"
+          else
+            echo "Overriding manual changes to tabular_data/output"
+            OVERRIDDEN=true
+          fi
+
+          # Stage only the output folder
           git add -f tabular_data/output
-          git diff --quiet && git diff --staged --quiet || git commit -m "Update output from processor"
+
+          # Commit if there are changes
+          if ! git diff --quiet || ! git diff --staged --quiet; then
+            if [ "$OVERRIDDEN" = true ]; then
+              git commit -m "Update output from processor (overrode manual changes)"
+            else
+              git commit -m "Update output from processor"
+            fi
+          fi
+
+          # Push changes
           git push
