@@ -1,94 +1,59 @@
-name: Run Processor
+name: Update Output Folder
 
 on:
   workflow_dispatch:
-
-  # To run the processor every time relevant files are pushed, uncomment the lines below:
-  # push:
-  #   paths:
-  #     - 'tabular_data/config/**'
-  #     - 'tabular_data/_global_config.py'
-  #     - 'tabular_data/processor.py'
-  #     - 'tabular_data/processor_helpers.py'
-  #     - 'tabular_data/requirements.txt'
-  #     - 'collections/**'
-  #     - '*.xml'
-
-  # The processor runs automatically at 03:30 UTC every Monday:
-  schedule:
-    - cron: '30 3 * * 1'
+  push:
+    branches:
+      - main
 
 jobs:
-  process:
+  update-output:
     runs-on: ubuntu-latest
 
-    env:
-      LC_ALL: en_GB.UTF-8
-      LANG: en_GB.UTF-8
-
-    permissions:
-      contents: write
-
     steps:
-      - name: Checkout full repository
+      - name: Checkout repo
         uses: actions/checkout@v4
         with:
-          ref: main
-          fetch-depth: 0
+          fetch-depth: 0  # Ensure full history so we can merge safely
 
-      - name: Set up locale
+      - name: Configure Git
         run: |
-          sudo apt-get update
-          sudo apt-get install -y locales
-          sudo locale-gen en_GB.UTF-8
-          sudo update-locale LANG=en_GB.UTF-8
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
-      - name: Install dependencies
-        run: |
-          cd tabular_data
-          python -m venv .venv
-          source .venv/bin/activate
-          pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: Clear existing output
-        run: |
-          echo "Removing existing output directory..."
-          rm -rf tabular_data/output
-          mkdir -p tabular_data/output
+      - name: Remove old output folder
+        run: rm -rf tabular_data/output
 
       - name: Run processor
         run: |
-          cd tabular_data
-          source .venv/bin/activate
-          python processor.py
+          # Replace this with your actual processing command
+          python3 your_script.py
 
-      - name: Commit and push new output
+      - name: Skip files > 100 MB from commit
         run: |
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          for file in $(find tabular_data/output -type f); do
+            size=$(stat -c%s "$file")
+            if [ $size -gt 104857600 ]; then
+              echo "Skipping large file (>100MB): $file"
+              git rm --cached "$file" || true
+            fi
+          done
 
-          echo "File list in new output (size in bytes):"
-          find tabular_data/output -type f -printf "%s %p\n" | sort -nr | head -20
+      - name: Stage changes
+        run: git add tabular_data/output
 
-          # Remove any file >100MB
-          find tabular_data/output -type f -size +100M -print -delete |
-            while read -r bigfile; do
-              echo "Skipped large file (>100MB): $bigfile"
-            done
-
-          # Stage everything in the output directory
-          git add -A tabular_data/output
-
-          # Commit only if there are actual changes
-          if ! git diff --cached --quiet; then
-            git commit -m "Replace output from processor"
-            git push
-          else
+      - name: Commit changes (if any)
+        run: |
+          if git diff --cached --quiet; then
             echo "No changes to commit."
+          else
+            git commit -m "Update generated output"
           fi
+
+      - name: Pull latest main and merge
+        run: |
+          git fetch origin main
+          git merge --no-edit origin/main || true
+
+      - name: Push changes
+        run: git push origin main
