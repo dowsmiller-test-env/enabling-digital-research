@@ -675,11 +675,18 @@ def parse_shelfmark(text):
             start, end = map(int, token.split('-'))
             sort_value = end if start <= end else start
             parsed.append(sort_value)
+            parsed.append(" ")
 
         # Handle digit+letter suffix like "10b"
         elif re.match(r'^\d+[a-zA-Z]$', token):
             parsed.append(int(token[:-1]))
             parsed.append(token[-1].lower())
+            parsed.append(" ")
+
+        # Handle digit+letter dash ranges like "10a-b"
+        elif re.match(r'^\d+[a-zA-Z]+-[a-zA-Z]+$', token):
+            parsed.append(token.split('-'))
+            parsed.append(" ")
 
         # Handle plain digits
         elif token.isdigit():
