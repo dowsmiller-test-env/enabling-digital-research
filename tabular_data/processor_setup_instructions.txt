@@ -1,4 +1,4 @@
-Tabular Data Processing - Setup Instructions
+Tabular Data Processing: Setup Instructions
 
 Follow the steps below to set up and run the data processor script on Mac,
 	Windows, or Linux.
