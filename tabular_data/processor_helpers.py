@@ -650,18 +650,19 @@ def sort_df(df, file_type):
 # Helper function for natural sorting of shelfmarks
 def parse_shelfmark(text):
     """
-    Converts a shelfmark into a single sortable string.
+    Converts a shelfmark into a tuple for deterministic natural sorting.
     Args:
         text (str): The shelfmark string to parse.
     Returns:
-        str: A single normalised string for sorting.
+        tuple: Components for sorting (ints for numbers, strings for text).
     """
-    # Handle nulls
     if pd.isnull(text):
-        return ""
+        return ()
 
-    # Normalise dashes and split tokens
+    # Normalise dashes
     clean = str(text).replace('–', '-').replace('—', '-')
+
+    # Split into tokens on non-word/hyphen boundaries
     tokens = re.split(r'[^\w\-]+', clean)
     parsed = []
 
@@ -669,28 +670,26 @@ def parse_shelfmark(text):
         if not token:
             continue
 
-        # Handle dash ranges
+        # Handle dash ranges like "10-20"
         if re.match(r'^\d+-\d+$', token):
             start, end = map(int, token.split('-'))
-            if start <= end: # e.g. 10-20
-                sort_value = end
-            else: #e.g. 20-5
-                sort_value = float(start)
-            parsed.append(f"{sort_value:05.1f}")
+            sort_value = end if start <= end else start
+            parsed.append(sort_value)
 
-        # Handle digit + letter suffix (e.g. "10b")
+        # Handle digit+letter suffix like "10b"
         elif re.match(r'^\d+[a-zA-Z]$', token):
-            parsed.append(f"{int(token[:-1]):05}.{ord(token[-1].lower())}")
+            parsed.append(int(token[:-1]))
+            parsed.append(token[-1].lower())
 
-        # Handle simple digits
+        # Handle plain digits
         elif token.isdigit():
-            parsed.append(f"{int(token):05}")
-            parsed.append(" ")
+            parsed.append(int(token))
+            parsed.append("")
 
         else:
             parsed.append(token.lower())
 
-    return " ".join(parsed)
+    return tuple(parsed)
 
 
 # Helper function to save DataFrame as either csv or json file
