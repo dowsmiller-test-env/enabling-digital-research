@@ -77,12 +77,13 @@ jobs:
           # Restore the stashed changes
           git stash pop --quiet || true
 
-          # Force our version of the output folder to win conflicts
-          if ! git checkout --ours tabular_data/output 2>/dev/null; then
-            echo "No conflicts in tabular_data/output"
-          else
-            echo "Overriding manual changes to tabular_data/output"
+          # Check for conflicts in output folder
+          if git ls-files --unmerged tabular_data/output | grep -q .; then
+            echo "Conflicts detected in tabular_data/output — keeping workflow's version"
+            git checkout --ours tabular_data/output || true
             OVERRIDDEN=true
+          else
+            echo "No conflicts in tabular_data/output"
           fi
 
           # Remove any file >100MB from staging
@@ -94,6 +95,10 @@ jobs:
           # Stage only the output folder
           git add -f tabular_data/output
 
+          # Debug: list files that will be committed
+          echo "Files staged for commit:"
+          git diff --cached --name-only || echo "(none)"
+
           # Commit if there are changes
           if ! git diff --quiet || ! git diff --staged --quiet; then
             if [ "$OVERRIDDEN" = true ]; then
@@ -101,7 +106,10 @@ jobs:
             else
               git commit -m "Update output from processor"
             fi
+          else
+            echo "No changes to commit."
           fi
 
           # Push changes
           git push
+
