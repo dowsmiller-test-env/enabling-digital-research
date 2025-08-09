@@ -1,61 +1,93 @@
-name: Update Output Folder
+name: Run Processor
 
 on:
   workflow_dispatch:
+
+  # To run the processor every time relevant files are pushed, uncomment the lines below:
+  # push:
+  #   paths:
+  #     - 'tabular_data/config/**'
+  #     - 'tabular_data/_global_config.py'
+  #     - 'tabular_data/processor.py'
+  #     - 'tabular_data/processor_helpers.py'
+  #     - 'tabular_data/requirements.txt'
+  #     - 'collections/**'
+  #     - '*.xml'
+
+  # The processor runs automatically at 03:30 UTC every Monday:
   schedule:
     - cron: '30 3 * * 1'
-  # push:
-    # branches:
-      # - main
 
 jobs:
-  update-output:
+  process:
     runs-on: ubuntu-latest
 
+    env:
+      LC_ALL: en_GB.UTF-8
+      LANG: en_GB.UTF-8
+
+    permissions:
+      contents: write
+
     steps:
-      - name: Checkout repo
+      - name: Checkout full repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Ensure full history so we can merge safely
+          ref: main
+          fetch-depth: 0
 
-      - name: Configure Git
+      - name: Set up locale
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          sudo apt-get update
+          sudo apt-get install -y locales
+          sudo locale-gen en_GB.UTF-8
+          sudo update-locale LANG=en_GB.UTF-8
 
-      - name: Remove old output folder
-        run: rm -rf tabular_data/output
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          cd tabular_data
+          python -m venv .venv
+          source .venv/bin/activate
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Clear existing output
+        run: |
+          echo "Removing existing output directory..."
+          rm -rf tabular_data/output
+          mkdir -p tabular_data/output
 
       - name: Run processor
         run: |
-          # Replace this with your actual processing command
-          python3 your_script.py
+          cd tabular_data
+          source .venv/bin/activate
+          python processor.py
 
-      - name: Skip files > 100 MB from commit
+      - name: Commit and force-push new output
         run: |
-          for file in $(find tabular_data/output -type f); do
-            size=$(stat -c%s "$file")
-            if [ $size -gt 104857600 ]; then
-              echo "Skipping large file (>100MB): $file"
-              git rm --cached "$file" || true
-            fi
-          done
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
 
-      - name: Stage changes
-        run: git add tabular_data/output
+          echo "File list in new output (size in bytes):"
+          find tabular_data/output -type f -printf "%s %p\n" | sort -nr | head -20
 
-      - name: Commit changes (if any)
-        run: |
-          if git diff --cached --quiet; then
-            echo "No changes to commit."
-          else
-            git commit -m "Update generated output"
-          fi
+          # Remove any file >100MB
+          while IFS= read -r bigfile; do
+            echo "Skipped large file (>100MB): $bigfile"
+            rm -f "$bigfile"
+          done < <(find tabular_data/output -type f -size +100M)
 
-      - name: Pull latest main and merge
-        run: |
-          git fetch origin main
-          git merge --no-edit origin/main || true
+          # Stage only the output directory
+          git add -A tabular_data/output
 
-      - name: Push changes
-        run: git push origin main
+          # Always commit
+          git commit -m "Update processor output" || echo "No changes staged, creating empty commit."
+          git commit --allow-empty -m "Ensure push even if no changes"
+
+          # Force push output changes
+          git push origin main --force-with-lease
