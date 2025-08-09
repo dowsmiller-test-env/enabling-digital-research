@@ -85,6 +85,12 @@ jobs:
             OVERRIDDEN=true
           fi
 
+          # Remove any file >100MB from staging
+          find tabular_data/output -type f -size +100M -print -delete |
+            while read -r bigfile; do
+              echo "Skipping large file (>100MB): $bigfile"
+            done
+
           # Stage only the output folder
           git add -f tabular_data/output
 
