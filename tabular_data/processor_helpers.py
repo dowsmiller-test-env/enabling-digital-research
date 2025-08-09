@@ -662,8 +662,8 @@ def parse_shelfmark(text):
     # Normalise dashes
     clean = str(text).replace('–', '-').replace('—', '-')
 
-    # Split into tokens on non-word/hyphen boundaries
-    tokens = re.split(r'[^\w\-]+', clean)
+    # Split into tokens on non-word boundaries
+    tokens = re.split(r'[^\w]+', clean)
     parsed = []
 
     for token in tokens:
