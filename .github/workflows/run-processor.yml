@@ -86,6 +86,12 @@ jobs:
             echo "No conflicts in tabular_data/output"
           fi
 
+          echo "Output directory file list (size in bytes):"
+          find tabular_data/output -type f -printf "%s %p\n" | sort -nr | head -20
+          
+          echo "Git sees these as changed before staging:"
+          git status --short tabular_data/output
+
           # Remove any file >100MB from staging
           find tabular_data/output -type f -size +100M -print -delete |
             while read -r bigfile; do
