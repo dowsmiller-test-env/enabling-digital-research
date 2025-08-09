@@ -684,6 +684,7 @@ def parse_shelfmark(text):
         # Handle plain digits
         elif token.isdigit():
             parsed.append(int(token))
+            parsed.append(" ")
 
         else:
             parsed.append(token.lower())
