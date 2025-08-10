@@ -659,31 +659,18 @@ def parse_shelfmark(text):
     if pd.isnull(text):
         return ()
 
-    # Normalise dashes
-    clean = str(text).replace('–', '-').replace('—', '-')
-
     # Split into tokens on non-word boundaries
-    tokens = re.split(r'[^\w]+', clean)
+    tokens = re.split(r'[\W_]+', text)
     parsed = []
 
     for token in tokens:
         if not token:
             continue
 
-        # Handle dash ranges like "10-20"
-        if re.match(r'^\d+-\d+$', token):
-            start, end = map(int, token.split('-'))
-            sort_value = end if start <= end else start
-            parsed.append(sort_value)
-
         # Handle digit+letter suffix like "10b"
         elif re.match(r'^\d+[a-zA-Z]$', token):
             parsed.append(int(token[:-1]))
             parsed.append(token[-1].lower())
-
-        # Handle digit+letter dash ranges like "10a-b"
-        elif re.match(r'^\d+[a-zA-Z]+-[a-zA-Z]+$', token):
-            parsed.append(token.split('-'))
 
         # Handle plain digits
         elif token.isdigit():
