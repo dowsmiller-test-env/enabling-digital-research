@@ -667,10 +667,18 @@ def parse_shelfmark(text):
         if not token:
             continue
 
-        # Handle digit+letter suffix like "10b"
-        elif re.match(r'^\d+[a-zA-Z]$', token):
-            parsed.append(int(token[:-1]))
-            parsed.append(token[-1].lower())
+        # Handle digit+letter combinations
+        elif re.search(r'[A-Za-z]', token) and re.search(r'\d', token):
+            parts = re.findall(r'\d+|[A-Za-z]+', token)
+            for i, part in enumerate(parts):
+                if part.isdigit():
+                    parsed.append(int(part))
+
+                else:
+                    parsed.append(part.lower())
+
+                if i != len(parts) - 1:
+                    parsed.append("")
 
         # Handle plain digits
         elif token.isdigit():
@@ -682,6 +690,7 @@ def parse_shelfmark(text):
         parsed.append("")
 
     return tuple(parsed)
+
 
 # Helper function to save DataFrame as either csv or json file
 def save_as(df, output_dir, config_name, format):
