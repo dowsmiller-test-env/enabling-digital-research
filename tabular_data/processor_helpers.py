@@ -587,69 +587,74 @@ def sort_df(df, file_type):
     """
     try:
         if file_type == "authority":
-            first_col = df.columns[0]
-            if df[first_col].astype(str).str.contains(r'_\d+', na=False).any():
-                rows = df.to_records(index=False)
-                sorted_rows = sorted(
-                    rows,
-                    key=lambda row: float(re.search(r'_(\d+)', str(row[0])).group(1))
-                    if re.search(r'_(\d+)', str(row[0])) else float('inf')
-                )
-                return pd.DataFrame.from_records(sorted_rows, columns=df.columns)
+            if df.iloc[:, 0].astype(str).str.contains(r'_\d+', na=False).any():
+                df['temp'] = df.iloc[:, 0].astype(str).str.extract(r'_(\d+)', expand=False).astype(float)
+                df = df.sort_values(by='temp', ascending=True, na_position='last').reset_index(drop=True)
+                df.drop(columns='temp', inplace=True)
             else:
-                rows = df.to_records(index=False)
-                sorted_rows = sorted(rows, key=lambda row: str(row[0]))
-                return pd.DataFrame.from_records(sorted_rows, columns=df.columns)
+                df = df.sort_values(by=df.columns[0], ascending=True, na_position='last').reset_index(drop=True)
 
         elif file_type == "collection":
-            rows = df.to_records(index=False)
-
             if 'metadata: collection' in df.columns and 'metadata: shelfmark' in df.columns:
-                col_idx = df.columns.get_loc('metadata: collection')
-                sm_idx = df.columns.get_loc('metadata: shelfmark')
-                sorted_rows = sorted(
-                    rows,
-                    key=lambda row: (row[col_idx], parse_shelfmark(row[sm_idx]))
-                )
+                df = df.assign(
+                    _collection_sort=df['metadata: collection'],
+                    _shelfmark_sort=df['metadata: shelfmark'].map(parse_shelfmark)
+                ).sort_values(
+                    by=['_collection_sort', '_shelfmark_sort'],
+                    ascending=True,
+                    na_position='last'
+                ).drop(columns=['_collection_sort', '_shelfmark_sort']).reset_index(drop=True)
 
             elif 'metadata: collection' in df.columns:
-                col_idx = df.columns.get_loc('metadata: collection')
-                first_idx = 0
-                sorted_rows = sorted(
-                    rows,
-                    key=lambda row: (row[col_idx], parse_shelfmark(row[first_idx]))
-                )
+                first_col = df.columns[0]
+                df = df.assign(
+                    _collection_sort=df['metadata: collection'],
+                    _first_sort=df[first_col].map(parse_shelfmark)
+                ).sort_values(
+                    by=['_collection_sort', '_first_sort'],
+                    ascending=True,
+                    na_position='last'
+                ).drop(columns=['_collection_sort', '_first_sort']).reset_index(drop=True)
 
             elif 'metadata: shelfmark' in df.columns:
-                sm_idx = df.columns.get_loc('metadata: shelfmark')
-                first_idx = 0
-                sorted_rows = sorted(
-                    rows,
-                    key=lambda row: (parse_shelfmark(row[sm_idx]), row[first_idx])
-                )
+                first_col = df.columns[0]
+                df = df.assign(
+                    _shelfmark_sort=df['metadata: shelfmark'].map(parse_shelfmark),
+                    _first_sort=df[first_col]
+                ).sort_values(
+                    by=['_shelfmark_sort', '_first_sort'],
+                    ascending=True,
+                    na_position='last'
+                ).drop(columns=['_shelfmark_sort', '_first_sort']).reset_index(drop=True)
 
             else:
-                first_idx = 0
-                sorted_rows = sorted(rows, key=lambda row: parse_shelfmark(row[first_idx]))
-
-            return pd.DataFrame.from_records(sorted_rows, columns=df.columns)
+                first_col = df.columns[0]
+                df = df.assign(
+                    _first_sort=df[first_col]
+                ).sort_values(
+                    by=['_first_sort'],
+                    ascending=True,
+                    na_position='last'
+                ).drop(columns=['_first_sort']).reset_index(drop=True)
 
         else:
             tqdm.write(f"Unknown file_type '{file_type}' for sorting. Returning unsorted DataFrame.")
-            return df
+
+        return df
 
     except Exception as e:
         tqdm.write(f"Sorting DataFrame failed. Error: {e}. Returning unsorted DataFrame.")
+
         return df
 
 # Helper function for natural sorting of shelfmarks
 def parse_shelfmark(text):
     """
-    Converts a shelfmark into a tuple for deterministic natural sorting.
+    Converts a shelfmark into a string for deterministic natural sorting.
     Args:
         text (str): The shelfmark string to parse.
     Returns:
-        tuple: Components for sorting (ints for numbers, strings for text).
+        string: Normalised shelfmark for sorting.
     """
     if pd.isnull(text):
         return ()
@@ -666,20 +671,22 @@ def parse_shelfmark(text):
             parts = re.findall(r'\d+|[A-Za-z]+', token)
             for pi, part in enumerate(parts):
                 if part.isdigit():
-                    parsed.append(int(part))
+                    parsed.append(f"{int(part):05}")
                 else:
                     parsed.append(part.lower())
                 if pi != len(parts) - 1:
-                    parsed.append("")
+                    parsed.append(" ")
         elif token.isdigit():
-            parsed.append(int(token))
+            parsed.append(f"{int(token):05}")
         else:
             parsed.append(token.lower())
 
         if ti != len(tokens) - 1:
-            parsed.append("")
+            parsed.append(" ")
 
-    return tuple(parsed)
+    return "".join(parsed)
+
+# parse_shelfmark("MS_24_24a_1-2")
 
 # Helper function to save DataFrame as either csv or json file
 def save_as(df, output_dir, config_name, format):
