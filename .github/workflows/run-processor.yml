@@ -85,9 +85,8 @@ jobs:
           # Stage only the output directory
           git add -A tabular_data/output
 
-          # Always commit
-          git commit -m "Update processor output" || echo "No changes staged, creating empty commit."
-          git commit --allow-empty -m "Ensure push even if no changes"
+          # Commit
+          git commit -m "Update processor output"
 
           # Force push output changes
           git push origin main --force-with-lease
