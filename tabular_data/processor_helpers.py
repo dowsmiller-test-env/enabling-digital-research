@@ -587,64 +587,59 @@ def sort_df(df, file_type):
     """
     try:
         if file_type == "authority":
-            if df.iloc[:, 0].astype(str).str.contains(r'_\d+', na=False).any():
-                df['temp'] = df.iloc[:, 0].astype(str).str.extract(r'_(\d+)', expand=False).astype(float)
-                df = df.sort_values(by='temp', ascending=True, na_position='last').reset_index(drop=True)
-                df.drop(columns='temp', inplace=True)
+            first_col = df.columns[0]
+            if df[first_col].astype(str).str.contains(r'_\d+', na=False).any():
+                rows = df.to_records(index=False)
+                sorted_rows = sorted(
+                    rows,
+                    key=lambda row: float(re.search(r'_(\d+)', str(row[0])).group(1))
+                    if re.search(r'_(\d+)', str(row[0])) else float('inf')
+                )
+                return pd.DataFrame.from_records(sorted_rows, columns=df.columns)
             else:
-                df = df.sort_values(by=df.columns[0], ascending=True, na_position='last').reset_index(drop=True)
+                rows = df.to_records(index=False)
+                sorted_rows = sorted(rows, key=lambda row: str(row[0]))
+                return pd.DataFrame.from_records(sorted_rows, columns=df.columns)
 
         elif file_type == "collection":
+            rows = df.to_records(index=False)
+
             if 'metadata: collection' in df.columns and 'metadata: shelfmark' in df.columns:
-                df = df.assign(
-                    _collection_sort=df['metadata: collection'],
-                    _shelfmark_sort=df['metadata: shelfmark'].map(parse_shelfmark)
-                ).sort_values(
-                    by=['_collection_sort', '_shelfmark_sort'],
-                    ascending=True,
-                    na_position='last'
-                ).drop(columns=['_collection_sort', '_shelfmark_sort']).reset_index(drop=True)
+                col_idx = df.columns.get_loc('metadata: collection')
+                sm_idx = df.columns.get_loc('metadata: shelfmark')
+                sorted_rows = sorted(
+                    rows,
+                    key=lambda row: (row[col_idx], parse_shelfmark(row[sm_idx]))
+                )
 
             elif 'metadata: collection' in df.columns:
-                first_col = df.columns[0]
-                df = df.assign(
-                    _collection_sort=df['metadata: collection'],
-                    _first_sort=df[first_col].map(parse_shelfmark)
-                ).sort_values(
-                    by=['_collection_sort', '_first_sort'],
-                    ascending=True,
-                    na_position='last'
-                ).drop(columns=['_collection_sort', '_first_sort']).reset_index(drop=True)
+                col_idx = df.columns.get_loc('metadata: collection')
+                first_idx = 0
+                sorted_rows = sorted(
+                    rows,
+                    key=lambda row: (row[col_idx], parse_shelfmark(row[first_idx]))
+                )
 
             elif 'metadata: shelfmark' in df.columns:
-                first_col = df.columns[0]
-                df = df.assign(
-                    _shelfmark_sort=df['metadata: shelfmark'].map(parse_shelfmark),
-                    _first_sort=df[first_col]
-                ).sort_values(
-                    by=['_shelfmark_sort', '_first_sort'],
-                    ascending=True,
-                    na_position='last'
-                ).drop(columns=['_shelfmark_sort', '_first_sort']).reset_index(drop=True)
+                sm_idx = df.columns.get_loc('metadata: shelfmark')
+                first_idx = 0
+                sorted_rows = sorted(
+                    rows,
+                    key=lambda row: (parse_shelfmark(row[sm_idx]), row[first_idx])
+                )
 
             else:
-                first_col = df.columns[0]
-                df = df.assign(
-                    _first_sort=df[first_col]
-                ).sort_values(
-                    by=['_first_sort'],
-                    ascending=True,
-                    na_position='last'
-                ).drop(columns=['_first_sort']).reset_index(drop=True)
+                first_idx = 0
+                sorted_rows = sorted(rows, key=lambda row: parse_shelfmark(row[first_idx]))
+
+            return pd.DataFrame.from_records(sorted_rows, columns=df.columns)
 
         else:
             tqdm.write(f"Unknown file_type '{file_type}' for sorting. Returning unsorted DataFrame.")
-
-        return df
+            return df
 
     except Exception as e:
         tqdm.write(f"Sorting DataFrame failed. Error: {e}. Returning unsorted DataFrame.")
-
         return df
 
 # Helper function for natural sorting of shelfmarks
@@ -659,38 +654,32 @@ def parse_shelfmark(text):
     if pd.isnull(text):
         return ()
 
-    # Split into tokens on non-word boundaries
     tokens = re.split(r'[\W_]+', text)
     parsed = []
 
-    for token in tokens:
+    for ti, token in enumerate(tokens):
         if not token:
             continue
 
         # Handle digit+letter combinations
         elif re.search(r'[A-Za-z]', token) and re.search(r'\d', token):
             parts = re.findall(r'\d+|[A-Za-z]+', token)
-            for i, part in enumerate(parts):
+            for pi, part in enumerate(parts):
                 if part.isdigit():
                     parsed.append(int(part))
-
                 else:
                     parsed.append(part.lower())
-
-                if i != len(parts) - 1:
+                if pi != len(parts) - 1:
                     parsed.append("")
-
-        # Handle plain digits
         elif token.isdigit():
             parsed.append(int(token))
-
         else:
             parsed.append(token.lower())
 
-        parsed.append("")
+        if ti != len(tokens) - 1:
+            parsed.append("")
 
     return tuple(parsed)
-
 
 # Helper function to save DataFrame as either csv or json file
 def save_as(df, output_dir, config_name, format):
